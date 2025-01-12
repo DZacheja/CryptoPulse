@@ -10,7 +10,6 @@
 	<ContentPage.Resources>
 		<ResourceDictionary>
 			<conv:BoolToColorConverter x:Key="BoolToColorConverter" />
-			<conv:CryptocurrencyPairToLastOperationConverter x:Key="CryptocurrencyPairToLastOperationConverter" />
 		</ResourceDictionary>
 	</ContentPage.Resources>
 	<Grid>
@@ -84,79 +83,82 @@
 									FontSize="18"
 									Text="{Binding CurrencyName1}"
 									TextColor="#37474F" />
-
-								<!--  Obecna Cena  -->
-								<Label
+								<VerticalStackLayout
 									Grid.Row="1"
 									Grid.Column="0"
-									FontSize="14"
-									Text="Cena:"
-									TextColor="#6B7280" />
-								<Label
-									Grid.Row="1"
-									Grid.Column="1"
-									Margin="0,0,20,0"
-									FontAttributes="Bold"
-									TextColor="{Binding PriceColor}"
-									VerticalOptions="Start">
-									<Label.Text>
-										<MultiBinding StringFormat="{}{0:F5} {1}">
-											<Binding Path="CurrentExchangeRate" />
-											<Binding Path="CurrencyName2" />
-										</MultiBinding>
-									</Label.Text>
-								</Label>
-								<!--  Ostatnia Operacja  -->
-								<Label
-									Grid.Row="2"
-									Grid.Column="0"
-									FontSize="14"
-									Text="Last oper:"
-									TextColor="#6B7280" />
-								<Label
-									Grid.Row="2"
-									Grid.Column="1"
-									Margin="0,0,20,0"
-									FontAttributes="Bold"
-									TextColor="{Binding LastOperation.IsBuyer, Converter={StaticResource BoolToColorConverter}}"
-									VerticalOptions="Start">
-									<Label.Text>
-										<MultiBinding StringFormat="{}{0:F5} {1}">
-											<Binding Path="LastOperation.Price" />
-											<Binding Path="CurrencyName2" />
-										</MultiBinding>
-									</Label.Text>
-								</Label>
-								<!--  Last Direction in pair  -->
-								<Label
-									Grid.Row="3"
-									Grid.Column="0"
-									FontSize="14"
-									Text="Last side:"
-									TextColor="#6B7280" />
-								<Label
-									Grid.Row="3"
-									Grid.Column="1"
-									Margin="0,0,20,0"
-									FontAttributes="Bold"
-									Text="{Binding ., Converter={StaticResource CryptocurrencyPairToLastOperationConverter}}"
-									VerticalOptions="Start" />
+									Padding="3"
+									Spacing="5">
 
-								<!--  Change from last transaction and current price  -->
-								<Label
-									Grid.Row="4"
-									Grid.Column="0"
-									FontSize="14"
-									Text="Zmiana ceny:"
-									TextColor="#6B7280" />
-								<Label
-									Grid.Row="4"
-									Grid.Column="1"
-									Margin="0,0,20,0"
-									FontAttributes="Bold"
-									Text="{Binding DifferenceFromCurrent, StringFormat='{0:F5}'}"
-									VerticalOptions="Start" />
+									<HorizontalStackLayout Spacing="54">
 
+										<!--  Obecna Cena  -->
+										<Label
+											FontSize="14"
+											Text="Cena:"
+											TextColor="#6B7280" />
+										<Label
+											Grid.Row="1"
+											Grid.Column="1"
+											Margin="0,0,20,0"
+											FontAttributes="Bold"
+											TextColor="{Binding PriceColor}"
+											VerticalOptions="Start">
+											<Label.Text>
+												<MultiBinding StringFormat="{}{0:F5} {1}">
+													<Binding Path="CurrentExchangeRate" />
+													<Binding Path="CurrencyName2" />
+												</MultiBinding>
+											</Label.Text>
+										</Label>
+									</HorizontalStackLayout>
+									<HorizontalStackLayout Spacing="32">
+										<!--  Last Direction in pair  -->
+										<Label
+											FontSize="14"
+											Text="Kierunek:"
+											TextColor="#6B7280" />
+										<Label
+											Margin="0,0,20,0"
+											FontAttributes="Bold"
+											Text="{Binding LastOperationPair}"
+											TextColor="Black"
+											VerticalOptions="Start" />
+									</HorizontalStackLayout>
+									<HorizontalStackLayout Spacing="10">
+
+										<!--  Change from last transaction and current price  -->
+										<Label
+											FontSize="14"
+											Text="Zmiana ceny:"
+											TextColor="#6B7280" />
+										<Label
+											Margin="0,0,20,0"
+											FontAttributes="Bold"
+											Text="{Binding DifferenceFromCurrent, StringFormat='{0:F5}'}"
+											TextColor="Black"
+											VerticalOptions="Start" />
+
+									</HorizontalStackLayout>
+									<HorizontalStackLayout Spacing="7">
+										<!--  Ostatnia Operacja  -->
+										<Label
+											FontSize="14"
+											Text="Ost. operacja:"
+											TextColor="#6B7280" />
+										<Label
+											Margin="0,0,20,0"
+											FontAttributes="Bold"
+											TextColor="Black"
+											VerticalOptions="Start">
+											<Label.Text>
+												<MultiBinding StringFormat="{}{0:F5} {1}">
+													<Binding Path="LastOperation.Price" />
+													<Binding Path="CurrencyName2" />
+												</MultiBinding>
+											</Label.Text>
+										</Label>
+									</HorizontalStackLayout>
+								</VerticalStackLayout>
 								<!--  Przyciski  -->
 								<StackLayout
 									Grid.RowSpan="3"
