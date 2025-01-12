@@ -3,8 +3,16 @@
 	x:Class="MyCryptocurrency.Views.MainPage"
 	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:conv="clr-namespace:MyCryptocurrency.Converters"
+	xmlns:models="clr-namespace:MyCryptocurrency.Models"
 	xmlns:vm="clr-namespace:MyCryptocurrency.ViewModels"
 	BackgroundColor="{DynamicResource PageBackgroundColor}">
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<conv:BoolToColorConverter x:Key="BoolToColorConverter" />
+			<conv:CryptocurrencyPairToLastOperationConverter x:Key="CryptocurrencyPairToLastOperationConverter" />
+		</ResourceDictionary>
+	</ContentPage.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
@@ -15,243 +23,170 @@
 			Grid.Row="0"
 			Margin="10,10,10,10"
 			Padding="10">
-			<!--  Change View to insert API KEYS  -->
-			<Button
-				Margin="5"
-				Command="{Binding NavigateToKeySettingsCommand}"
-				HorizontalOptions="Start"
-				Text="Open API Settings"
-				WidthRequest="250" />
+			<HorizontalStackLayout>
+				<Entry
+					x:Name="PairEntry1"
+					Placeholder="Enter crypto (e.g., BTC)"
+					Text="{Binding NewCryptoPair.CurrencyName1, Mode=TwoWay}" />
+				<Label
+					FontSize="Large"
+					Text="/"
+					VerticalOptions="Center" />
+				<Entry
+					x:Name="PairEntry2"
+					Placeholder="Enter crypto (e.g., USDT)"
+					Text="{Binding NewCryptoPair.CurrencyName2, Mode=TwoWay}" />
+			</HorizontalStackLayout>
 			<Button
 				Command="{Binding AddCryptoPairCommand}"
-				CommandParameter="{Binding Text, Source={x:Reference PairEntry}}"
 				Text="Add Pair"
 				WidthRequest="200" />
-			<Entry x:Name="PairEntry" Placeholder="Enter crypto pair (e.g., BTCUSDT)" />
 		</StackLayout>
-		<!--  Entry to add pairs  -->
 
-
-		<!--  StackLayout to hold the dynamic panels for each pair  -->
+		<ActivityIndicator
+			Grid.Row="1"
+			IsRunning="{Binding ActivityIndicatorIsRunning}"
+			Color="Blue" />
 		<ScrollView Grid.Row="1">
-			<StackLayout
-				x:Name="PairsStackLayout"
-				Margin="5"
-				HorizontalOptions="Start">
-				<CollectionView
-					x:Name="colCryptoPairsCollectionView"
-					Margin="5"
-					HorizontalOptions="Start"
-					ItemsSource="{Binding CryptoPairs}">
-					<CollectionView.ItemTemplate>
-						<DataTemplate>
-							<Button
-								Margin="5"
-								Command="{Binding Path=BindingContext.ShowTransactionHistoryCommand, Source={Reference colCryptoPairsCollectionView}}"
-								CommandParameter="{Binding}"
-								HorizontalOptions="Start"
-								Text="{Binding}"
-								WidthRequest="100" />
-						</DataTemplate>
-					</CollectionView.ItemTemplate>
-				</CollectionView>
-			</StackLayout>
+			<CollectionView
+				x:Name="CryptoPairsCollectionView"
+				Margin="10"
+				ItemsSource="{Binding CryptoPairs}"
+				SelectionMode="None">
+				<CollectionView.ItemTemplate>
+					<DataTemplate>
+						<Frame
+							Margin="5"
+							Padding="10"
+							BackgroundColor="White"
+							BorderColor="#4CAF50"
+							CornerRadius="10"
+							HasShadow="True">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<!--  Symbol  -->
+								<Label
+									Grid.Row="0"
+									Grid.Column="0"
+									FontAttributes="Bold"
+									FontSize="18"
+									Text="{Binding CurrencyName1}"
+									TextColor="#37474F" />
+
+								<!--  Obecna Cena  -->
+								<Label
+									Grid.Row="1"
+									Grid.Column="0"
+									FontSize="14"
+									Text="Cena:"
+									TextColor="#6B7280" />
+								<Label
+									Grid.Row="1"
+									Grid.Column="1"
+									Margin="0,0,20,0"
+									FontAttributes="Bold"
+									TextColor="{Binding PriceColor}"
+									VerticalOptions="Start">
+									<Label.Text>
+										<MultiBinding StringFormat="{}{0:F5} {1}">
+											<Binding Path="CurrentExchangeRate" />
+											<Binding Path="CurrencyName2" />
+										</MultiBinding>
+									</Label.Text>
+								</Label>
+								<!--  Ostatnia Operacja  -->
+								<Label
+									Grid.Row="2"
+									Grid.Column="0"
+									FontSize="14"
+									Text="Last oper:"
+									TextColor="#6B7280" />
+								<Label
+									Grid.Row="2"
+									Grid.Column="1"
+									Margin="0,0,20,0"
+									FontAttributes="Bold"
+									TextColor="{Binding LastOperation.IsBuyer, Converter={StaticResource BoolToColorConverter}}"
+									VerticalOptions="Start">
+									<Label.Text>
+										<MultiBinding StringFormat="{}{0:F5} {1}">
+											<Binding Path="LastOperation.Price" />
+											<Binding Path="CurrencyName2" />
+										</MultiBinding>
+									</Label.Text>
+								</Label>
+								<!--  Last Direction in pair  -->
+								<Label
+									Grid.Row="3"
+									Grid.Column="0"
+									FontSize="14"
+									Text="Last side:"
+									TextColor="#6B7280" />
+								<Label
+									Grid.Row="3"
+									Grid.Column="1"
+									Margin="0,0,20,0"
+									FontAttributes="Bold"
+									Text="{Binding ., Converter={StaticResource CryptocurrencyPairToLastOperationConverter}}"
+									VerticalOptions="Start" />
+
+								<!--  Change from last transaction and current price  -->
+								<Label
+									Grid.Row="4"
+									Grid.Column="0"
+									FontSize="14"
+									Text="Zmiana ceny:"
+									TextColor="#6B7280" />
+								<Label
+									Grid.Row="4"
+									Grid.Column="1"
+									Margin="0,0,20,0"
+									FontAttributes="Bold"
+									Text="{Binding DifferenceFromCurrent, StringFormat='{0:F5}'}"
+									VerticalOptions="Start" />
+
+								<!--  Przyciski  -->
+								<StackLayout
+									Grid.RowSpan="3"
+									Grid.Column="2"
+									Orientation="Vertical"
+									Spacing="10"
+									VerticalOptions="Center">
+									<Button
+										BackgroundColor="#2196F3"
+										Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ShowDetailsCommand}"
+										CommandParameter="{Binding .}"
+										CornerRadius="5"
+										FontSize="14"
+										Text="Szczegóły"
+										TextColor="White" />
+									<Button
+										BackgroundColor="#F44336"
+										Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeletePairCommand}"
+										CommandParameter="{Binding .}"
+										CornerRadius="5"
+										FontSize="14"
+										Text="Usuń"
+										TextColor="White" />
+								</StackLayout>
+							</Grid>
+						</Frame>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
 		</ScrollView>
 
-		<!--  Historia transakcji na dole  -->
-		<Grid Grid.Row="2">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="auto" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
-			<!--  Tytuł sekcji Kupno  -->
-			<Label
-				Grid.Row="0"
-				Margin="0,10,0,10"
-				FontAttributes="Bold"
-				FontSize="22"
-				HorizontalOptions="Center"
-				Text="Kupno"
-				TextColor="#34D399"
-				VerticalOptions="Center" />
-
-			<!--  Sekcja Kupna z ScrollView  -->
-			<ScrollView Grid.Row="1" Margin="0,0,0,20">
-				<CollectionView
-					Margin="0,10"
-					ItemsSource="{Binding BuyTransactionHistory}"
-					SelectionMode="None">
-					<CollectionView.ItemTemplate>
-						<DataTemplate>
-							<Frame
-								Margin="0,10"
-								Padding="15"
-								BackgroundColor="White"
-								BorderColor="#34D399"
-								CornerRadius="15"
-								HasShadow="True">
-								<StackLayout Spacing="10">
-									<Grid>
-										<Grid.RowDefinitions>
-											<RowDefinition Height="Auto" />
-											<RowDefinition Height="Auto" />
-											<RowDefinition Height="Auto" />
-										</Grid.RowDefinitions>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-										</Grid.ColumnDefinitions>
-
-										<!--  Symbol  -->
-										<Label
-											Grid.Row="0"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Symbol:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="0"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Symbol}"
-											TextColor="#34D399" />
-
-										<!--  Cena  -->
-										<Label
-											Grid.Row="1"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Cena:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="1"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Price, StringFormat='{0:C}'}"
-											TextColor="#34D399" />
-
-										<!--  Ilość  -->
-										<Label
-											Grid.Row="2"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Ilość:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="2"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Qty}"
-											TextColor="#34D399" />
-									</Grid>
-								</StackLayout>
-							</Frame>
-						</DataTemplate>
-					</CollectionView.ItemTemplate>
-				</CollectionView>
-			</ScrollView>
-
-			<!--  Tytuł sekcji Sprzedaż  -->
-			<Label
-				Grid.Row="0"
-				Grid.Column="1"
-				Margin="0,10,0,10"
-				FontAttributes="Bold"
-				FontSize="22"
-				HorizontalOptions="Center"
-				Text="Sprzedaż"
-				TextColor="#F87171"
-				VerticalOptions="Center" />
-
-			<!--  Sekcja Sprzedaży z ScrollView  -->
-			<ScrollView
-				Grid.Row="1"
-				Grid.Column="1"
-				WidthRequest="250">
-				<CollectionView
-					Margin="10"
-					HeightRequest="300"
-					ItemsSource="{Binding SellTransactionHistory}"
-					SelectionMode="None">
-					<CollectionView.ItemTemplate>
-						<DataTemplate>
-							<Frame
-								Margin="10"
-								Padding="0"
-								BackgroundColor="White"
-								BorderColor="#F87171"
-								CornerRadius="15"
-								HasShadow="True">
-								<StackLayout Margin="5">
-									<Grid>
-										<Grid.RowDefinitions>
-											<RowDefinition Height="Auto" />
-											<RowDefinition Height="Auto" />
-											<RowDefinition Height="Auto" />
-										</Grid.RowDefinitions>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-										</Grid.ColumnDefinitions>
-
-										<!--  Symbol  -->
-										<Label
-											Grid.Row="0"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Symbol:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="0"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Symbol}"
-											TextColor="#F87171" />
-
-										<!--  Cena  -->
-										<Label
-											Grid.Row="1"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Cena:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="1"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Price, StringFormat='{0:C}'}"
-											TextColor="#F87171" />
-
-										<!--  Ilość  -->
-										<Label
-											Grid.Row="2"
-											Grid.Column="0"
-											FontSize="14"
-											Text="Ilość:"
-											TextColor="#6B7280" />
-										<Label
-											Grid.Row="2"
-											Grid.Column="1"
-											FontAttributes="Bold"
-											FontSize="14"
-											Text="{Binding Qty}"
-											TextColor="#F87171" />
-									</Grid>
-								</StackLayout>
-							</Frame>
-						</DataTemplate>
-					</CollectionView.ItemTemplate>
-				</CollectionView>
-			</ScrollView>
-		</Grid>
 	</Grid>
 </ContentPage>

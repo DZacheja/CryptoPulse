@@ -67,21 +67,6 @@ public partial class KeyInputViewModel: ObservableObject
 		}
 	}
 
-	[RelayCommand]
-	public async Task BackToMainViewwClickAsync()
-	{
-		try
-		{
-			await Shell.Current.GoToAsync("..");
-		}
-
-		catch (Exception e)
-		{
-			Console.WriteLine(e);
-			ShowBannerMessage($"Error: {e.Message}");
-		}
-	}
-
 	private async void ShowBannerMessage(string message)
 	{
 		await Application.Current.MainPage.DisplayAlert("Rezultat", message, "Ok");

@@ -56,13 +56,5 @@
 				Text="Save"
 				WidthRequest="100" />
 		</Grid>
-
-		<Button
-			Grid.Column="1"
-			Margin="20,0,0,0"
-			Command="{Binding BackToMainViewwClickCommand}"
-			HorizontalOptions="Center"
-			Text="Back to MainView"
-			WidthRequest="300" />
 	</VerticalStackLayout>
 </ContentPage>
