@@ -76,14 +76,24 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\MyCryptocurrency.BianceApi\MyCryptocurrency.BianceApi.csproj" />
+	  <ProjectReference Include="..\MyCryptocurrency.Database\MyCryptocurrency.Database.csproj" />
 	  <ProjectReference Include="..\MyCryptocurrency.Infrastructure\MyCryptocurrency.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Views\TradeDetailsPage.xaml.cs">
+	    <DependentUpon>TradeDetailsPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\KeyInputPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TradeListDetailsPage.xaml">
+	  <MauiXaml Update="Views\SettingsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TradeDetailsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

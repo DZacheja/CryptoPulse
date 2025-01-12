@@ -8,5 +8,8 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.Services.Interfaces;
 public interface IBinanceClientService
 {
-	public Task<List<AccountTradeList>> GetAccountTradeList(string pair);
+	public Task<List<AccountTrade>> GetAccountTradeList(string pair);
+	public Task<PairPriceTicker> GetSymbolCurrentPrice(string symbol, CancellationTokenSource token);
+	public Task<AccountTrade> GetAccountTradeLastPairOperation(string symbol);
+	public Task<PairAvgPrice> GetSymbolAvgPrice(string symbol);
 }

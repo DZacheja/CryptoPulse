@@ -9,6 +9,24 @@ namespace MyCryptocurrency.Views
 			InitializeComponent();
 			BindingContext = viewModel;
 		}
+
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+			if (BindingContext is MainPageViewModel viewModel)
+			{
+				viewModel.StopUpdatingPrices();
+			}
+		}
+
+		protected override void OnAppearing()
+		{
+			base.OnAppearing();
+			if (BindingContext is MainPageViewModel viewModel)
+			{
+				viewModel.StartUpdatingPrices();
+			}
+		}
 	}
 
 }

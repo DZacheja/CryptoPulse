@@ -5,8 +5,8 @@ namespace MyCryptocurrency.Infrastructure.Services;
 
 public class SecureStorageService : ISecureStorageService
 {
-	private readonly string _apiKeyName = "MYCRYPTOCURRENCYAPIKEY";
-	private readonly string _apiPrvateKeyName = "MYCRYPTOCURRENCYAPIPRIVATEKEY";
+	private const string _apiKeyName = "MYCRYPTOCURRENCYAPIKEY";
+	private const string _apiPrvateKeyName = "MYCRYPTOCURRENCYAPIPRIVATEKEY";
 	// Save data securely
 	public async Task SaveAsync(string key, string value)
 	{
@@ -34,11 +34,12 @@ public class SecureStorageService : ISecureStorageService
 	{
 		try
 		{
+			var test = await SecureStorage.GetAsync(_apiKeyName);
 			return await SecureStorage.GetAsync(_apiKeyName);
 		}
 		catch (Exception ex)
 		{
-			return null;
+			return "";
 		}
 	}
 
@@ -55,7 +56,7 @@ public class SecureStorageService : ISecureStorageService
 		}
 		catch (Exception ex)
 		{
-			return null;
+			return "";
 		}
 	}
 }
