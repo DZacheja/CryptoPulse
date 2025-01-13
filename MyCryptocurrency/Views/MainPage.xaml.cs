@@ -24,6 +24,7 @@ namespace MyCryptocurrency.Views
 			base.OnAppearing();
 			if (BindingContext is MainPageViewModel viewModel)
 			{
+				viewModel.GetCryptoPairs();
 				viewModel.StartUpdatingPrices();
 			}
 		}

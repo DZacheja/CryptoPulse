@@ -1,68 +1,40 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Dispatching;
-using MyCryptocurrency.Infrastructure.Services.Interfaces;
+using MvvmHelpers;
 using MyCryptocurrency.Models;
 using MyCryptocurrency.Services.Interfaces;
 using MyCryptocurrency.Views;
-using System.Collections.ObjectModel;
 
 namespace MyCryptocurrency.ViewModels;
-public partial class MainPageViewModel : ObservableObject
+
+[ObservableObject]
+public partial class MainPageViewModel
 {
 	[ObservableProperty] private bool _activityIndicatorIsRunning = true;
 	private readonly IBinanceClientService _bianceClientService;
 	private readonly IDatabaseService _databaseService;
 	private CancellationTokenSource _cancellationTokenSource;
 	private readonly IDispatcher _dispatcher;
-	public ObservableCollection<CryptocurrencyPair> CryptoPairs { get; } = new ObservableCollection<CryptocurrencyPair>();
+	public ObservableRangeCollection<CryptocurrencyPair> CryptoPairs { get; } = new ObservableRangeCollection<CryptocurrencyPair>();
 
-	[ObservableProperty] CryptocurrencyPair _newCryptoPair = new CryptocurrencyPair();
+	[ObservableProperty] bool _addNewPairMode = false;
 
 	public MainPageViewModel(IBinanceClientService bianceClientService, IDatabaseService databaseService, IDispatcher dispatcher)
 	{
 		_bianceClientService = bianceClientService;
 		_databaseService = databaseService;
 		_dispatcher = dispatcher;
-		GetCryptoPairs();
 	}
 
-	private async void GetCryptoPairs()
+	public void GetCryptoPairs()
 	{
-		ActivityIndicatorIsRunning = true;
-		var pairs = await _databaseService.GetPairsAsync();
-		CryptoPairs.Clear();
-		foreach (var pair in pairs.OrderBy(x => x.OrderID))
-			CryptoPairs.Add(pair);
-
-		ActivityIndicatorIsRunning = false;
-	}
-
-	[RelayCommand]
-	public async Task AddCryptoPair()
-	{
-		if (NewCryptoPair == null || string.IsNullOrEmpty(NewCryptoPair.CurrencyName1) || string.IsNullOrEmpty(NewCryptoPair.CurrencyName2))
+		Task.Run(async () =>
 		{
-			ShowBannerMessage("Uzupełnij wszytkie dane na oknie!");
-			return;
-		}
-		try
-		{
-			_cancellationTokenSource.Cancel();
-			CryptoPairs.Clear();
-			_activityIndicatorIsRunning = true;
-			int i = await _databaseService.AddPairAsync(NewCryptoPair);
-			GetCryptoPairs();
-			_activityIndicatorIsRunning = false;
-			StartUpdatingPrices();
-		}
-		catch (Exception ex)
-		{
-			_activityIndicatorIsRunning = true;
-			ShowBannerMessage($"Błąd: {ex.Message}");
-			GetCryptoPairs();
-			StartUpdatingPrices();
-		}
+			ActivityIndicatorIsRunning = true;
+			var pairs = await _databaseService.GetPairsAsync();
+			CryptoPairs.ReplaceRange(pairs.OrderBy(x => x.CurrencyName1).ToList());
+			ActivityIndicatorIsRunning = false;
+		});
 	}
 
 	[RelayCommand]
@@ -72,15 +44,6 @@ public partial class MainPageViewModel : ObservableObject
 		{
 			{ "SelectedPair", pair }
 		});
-	}
-
-	[RelayCommand]
-	public async Task DeletePair(CryptocurrencyPair pair)
-	{
-		_cancellationTokenSource?.Cancel();
-		await _databaseService.DeletePairAsync(pair);
-		GetCryptoPairs();
-		StartUpdatingPrices();
 	}
 
 	public void StartUpdatingPrices()
@@ -94,7 +57,7 @@ public partial class MainPageViewModel : ObservableObject
 				try
 				{
 					await UpdateAveragePrices(_cancellationTokenSource);
-					await Task.Delay(5000, _cancellationTokenSource.Token); // Wait for 5 seconds
+					await Task.Delay(2000, _cancellationTokenSource.Token); // Wait for 5 seconds
 				}
 				catch (TaskCanceledException)
 				{ }
@@ -102,7 +65,6 @@ public partial class MainPageViewModel : ObservableObject
 		});
 	}
 
-	[RelayCommand]
 	private async Task UpdateAveragePrices(CancellationTokenSource cancellationToken)
 	{
 		foreach (var pair in CryptoPairs)
@@ -133,8 +95,4 @@ public partial class MainPageViewModel : ObservableObject
 		_cancellationTokenSource?.Cancel();
 	}
 
-	private async void ShowBannerMessage(string message)
-	{
-		await Application.Current.MainPage.DisplayAlert("Rezultat", message, "Ok");
-	}
 }

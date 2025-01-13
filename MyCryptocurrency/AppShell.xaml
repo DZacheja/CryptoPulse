@@ -12,10 +12,13 @@
 			Title="Home"
 			ContentTemplate="{DataTemplate view:MainPage}"
 			Icon="home_button" />
-
 		<ShellContent
-			Title="About"
+			Title="Manage Pairs"
+			ContentTemplate="{DataTemplate view:ManagePairsPage}"
+			Icon="manage_pairs" />
+		<ShellContent
+			Title="My Api Keys"
 			ContentTemplate="{DataTemplate view:KeyInputPage}"
-			Icon="icon_settings" />
+			Icon="key_icon" />
 	</TabBar>
 </Shell>
