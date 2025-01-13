@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+	x:Class="MyCryptocurrency.Views.TradeListDetailsPage"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:converters="clr-namespace:MyCryptocurrency.Converters"
+	xmlns:models="clr-namespace:MyCryptocurrency.Models"
+	xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+	Title="Historia operacji">
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<RoundRectangle x:Key="BuyRoundRectangle" CornerRadius="20,20,20,0" />
+			<RoundRectangle x:Key="SellRoundRectangle" CornerRadius="20,20,0,20" />
+			<toolkit:BoolToObjectConverter
+				x:Key="BoolToCornerRadious"
+				FalseObject="{StaticResource SellRoundRectangle}"
+				TrueObject="{StaticResource BuyRoundRectangle}" />
+			<toolkit:BoolToObjectConverter
+				x:Key="BoolToHorizontalOptions"
+				FalseObject="2"
+				TrueObject="0" />
+			<toolkit:BoolToObjectConverter
+				x:Key="BoolToColor"
+				FalseObject="#fcaeae"
+				TrueObject="#bcdbb6" />
+		</ResourceDictionary>
+	</ContentPage.Resources>
+	<StackLayout Spacing="10">
+		<Label
+			FontAttributes="Bold"
+			FontSize="24"
+			HorizontalOptions="Center">
+			<Label.Text>
+				<MultiBinding StringFormat="{}{0} {1}">
+					<Binding Path="CurrencyName1" />
+					<Binding Path="CurrencyName2" />
+				</MultiBinding>
+			</Label.Text>
+		</Label>
+		<ActivityIndicator
+			IsRunning="{Binding ActivityIndicatorIsRunning}"
+			IsVisible="{Binding ActivityIndicatorIsRunning}"
+			Color="Blue" />
+		<CollectionView
+			HorizontalOptions="FillAndExpand"
+			ItemsSource="{Binding TransactionHistory}"
+			VerticalOptions="FillAndExpand">
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:AccountTrade">
+					<Grid Margin="10,0,10,0" ColumnDefinitions="*,0.03*,*">
+						<Border Grid.Column="1" BackgroundColor="Black" />
+						<Border
+							Grid.Column="{Binding IsBuyer, Converter={StaticResource BoolToHorizontalOptions}}"
+							Margin="5"
+							Padding="5"
+							BackgroundColor="{Binding IsBuyer, Converter={StaticResource BoolToColor}}"
+							StrokeShape="{Binding IsBuyer, Converter={StaticResource BoolToCornerRadious}}"
+							StrokeThickness="4"
+							VerticalOptions="Start">
+							<StackLayout>
+								<HorizontalStackLayout Margin="2,0,0,2" Spacing="5">
+									<Label FontAttributes="Bold" Text="Cena:" />
+									<Label>
+										<Label.Text>
+											<MultiBinding StringFormat="{}{0:F} {1}">
+												<Binding Path="Price" />
+												<Binding Path="BindingContext.CurrencyName1" Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+											</MultiBinding>
+										</Label.Text>
+									</Label>
+								</HorizontalStackLayout>
+								<HorizontalStackLayout Margin="2,0,0,2" Spacing="5">
+									<Label FontAttributes="Bold" Text="Ilość:" />
+									<Label>
+										<Label.Text>
+											<MultiBinding StringFormat="{}{0:F} {1}">
+												<Binding Path="Qty" />
+												<Binding Path="BindingContext.CurrencyName1" Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+											</MultiBinding>
+										</Label.Text>
+									</Label>
+								</HorizontalStackLayout>
+								<HorizontalStackLayout Margin="2,0,0,2" Spacing="5">
+									<Label FontAttributes="Bold" Text="Kwota:" />
+									<Label>
+										<Label.Text>
+											<MultiBinding StringFormat="{}{0:F} {1}">
+												<Binding Path="QuoteQty" />
+												<Binding Path="BindingContext.CurrencyName2" Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+											</MultiBinding>
+										</Label.Text>
+									</Label>
+								</HorizontalStackLayout>
+								<VerticalStackLayout Margin="2,0,0,2">
+									<Label FontAttributes="Bold" Text="Data i godzina:" />
+									<Label Text="{Binding Time, StringFormat='{}{0:dd-MM-yyyy HH:mm:ss}'}" />
+								</VerticalStackLayout>
+							</StackLayout>
+						</Border>
+					</Grid>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+		<!--  Sekcja Kupno  -->
+		<!--
+			<CollectionView
+				HorizontalOptions="FillAndExpand"
+				ItemsSource="{Binding BuyTransactionHistory}"
+				VerticalOptions="FillAndExpand">
+				<CollectionView.ItemTemplate>
+					<DataTemplate>
+						<Frame
+							Margin="5"
+							Padding="5"
+							BackgroundColor="DimGrey"
+							BorderColor="#4CAF50"
+							CornerRadius="10"
+							HasShadow="True">
+							<StackLayout>
+								<Label FontAttributes="Bold" Text="Symbol:" />
+								<Label Text="{Binding Symbol}" />
+								<Label FontAttributes="Bold" Text="Cena:" />
+								<Label Text="{Binding Price, StringFormat='{0:F5}'}" />
+								<Label FontAttributes="Bold" Text="Ilość:" />
+								<Label Text="{Binding Qty}" />
+							</StackLayout>
+						</Frame>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+
+			-->
+		<!--  Sekcja Sprzedaż  -->
+		<!--
+			<CollectionView
+				HorizontalOptions="FillAndExpand"
+				ItemsSource="{Binding SellTransactionHistory}"
+				VerticalOptions="FillAndExpand">
+				<CollectionView.ItemTemplate>
+					<DataTemplate>
+						<Frame
+							Margin="5"
+							Padding="5"
+							BackgroundColor="DimGrey"
+							BorderColor="#F44336"
+							CornerRadius="10"
+							HasShadow="True">
+							<StackLayout>
+								<Label FontAttributes="Bold" Text="Symbol:" />
+								<Label Text="{Binding Symbol}" />
+								<Label FontAttributes="Bold" Text="Cena:" />
+								<Label Text="{Binding Price, StringFormat='{0:F5}'}" />
+								<Label FontAttributes="Bold" Text="Ilość:" />
+								<Label Text="{Binding Qty}" />
+							</StackLayout>
+						</Frame>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>-->
+	</StackLayout>
+</ContentPage>
