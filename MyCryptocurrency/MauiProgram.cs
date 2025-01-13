@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
-using MyCryptocurrency.Mapping;
 using MyCryptocurrency.BianceApi.Services.Interfaces;
 using MyCryptocurrency.Database.Service;
 using MyCryptocurrency.Database.Service.Interfaces;
 using MyCryptocurrency.Infrastructure.Services;
 using MyCryptocurrency.Infrastructure.Services.Interfaces;
+using MyCryptocurrency.Mapping;
 using MyCryptocurrency.Services;
 using MyCryptocurrency.Services.Interfaces;
 using MyCryptocurrency.ViewModels;
 using MyCryptocurrency.Views;
-using Microsoft.Maui.Controls;
 
 namespace MyCryptocurrency
 {
@@ -22,7 +21,11 @@ namespace MyCryptocurrency
 			var builder = MauiApp.CreateBuilder();
 			builder
 				.UseMauiApp<App>()
-				.UseMauiCommunityToolkit()
+				.UseMauiCommunityToolkit(
+				options =>
+				{
+					options.SetShouldEnableSnackbarOnWindows(true);
+				})
 				.ConfigureFonts(fonts =>
 				{
 					fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -48,12 +51,14 @@ namespace MyCryptocurrency
 			builder.Services.AddTransient<KeyInputViewModel>();
 			builder.Services.AddTransient<TradeDetailsViewModel>();
 			builder.Services.AddTransient<SettingsPage>();
+			builder.Services.AddTransient<ManagePairsViewModel>();
 
 			//Registyer Pages
 			builder.Services.AddTransient<MainPage>();
 			builder.Services.AddTransient<KeyInputPage>();
 			builder.Services.AddTransient<TradeDetailsViewModel>();
 			builder.Services.AddTransient<SettingsPage>();
+			builder.Services.AddTransient<ManagePairsPage>();
 
 #if DEBUG
 			builder.Logging.AddDebug();
