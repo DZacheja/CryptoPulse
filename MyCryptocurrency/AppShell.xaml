@@ -6,7 +6,14 @@
 	xmlns:local="clr-namespace:MyCryptocurrency"
 	xmlns:view="clr-namespace:MyCryptocurrency.Views"
 	Title="MyCryptocurrency"
-	Shell.FlyoutBehavior="Disabled">
+	Shell.BackgroundColor="{StaticResource BackgroundColor}"
+	Shell.FlyoutBehavior="Disabled"
+	Shell.ForegroundColor="{StaticResource SecondaryColor}"
+	Shell.TabBarBackgroundColor="{StaticResource BackgroundColor}"
+	Shell.TabBarForegroundColor="{StaticResource SecondaryColor}"
+	Shell.TabBarTitleColor="{StaticResource SecondaryColor}"
+	Shell.TabBarUnselectedColor="Gray"
+	Shell.TitleColor="{StaticResource SecondaryColor}">
 	<TabBar>
 		<ShellContent
 			Title="Home"
