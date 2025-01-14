@@ -6,6 +6,25 @@
 	xmlns:local="clr-namespace:MyCryptocurrency">
 	<Application.Resources>
 		<ResourceDictionary>
+			<!--  Fonts  -->
+			<Style TargetType="Label">
+				<Setter Property="FontFamily" Value="Segoe UI" />
+				<Setter Property="FontSize" Value="14" />
+				<!--  Optional  -->
+			</Style>
+			<Style TargetType="Span">
+				<Setter Property="FontFamily" Value="Segoe UI" />
+				<Setter Property="FontSize" Value="14" />
+				<!--  Optional  -->
+			</Style>
+
+			<!--  Colors  -->
+			<Color x:Key="BackgroundColor">#182620</Color>
+			<Color x:Key="SecondaryColor">#F2F2F2</Color>
+			<Color x:Key="PrimaryColor">#A67563</Color>
+			<Color x:Key="TextColor">#401505</Color>
+			<Color x:Key="ErrorColor">#733C30</Color>
+
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="Resources/Styles/Colors.xaml" />
 				<ResourceDictionary Source="Resources/Styles/Styles.xaml" />

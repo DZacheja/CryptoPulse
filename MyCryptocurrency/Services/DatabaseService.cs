@@ -36,7 +36,7 @@ public class DatabaseService : IDatabaseService
 			pair.LastOperation = await _bianceClient.GetAccountTradeLastPairOperation(pair.Symbol);
 			if(pair.LastOperation != null)
 			{
-				pair.LastOperationPair = pair.LastOperation.IsBuyer ? $"{pair.CurrencyName2} -> {pair.CurrencyName1}" : $"{pair.CurrencyName1} -> {pair.CurrencyName2}";
+				pair.LastOperationPair = pair.LastOperation.IsBuyer ? $"{pair.CurrencyName2} ► {pair.CurrencyName1}" : $"{pair.CurrencyName1} ► {pair.CurrencyName2}";
 				pair.FoundLastOperation = true;
 			}
 			else
