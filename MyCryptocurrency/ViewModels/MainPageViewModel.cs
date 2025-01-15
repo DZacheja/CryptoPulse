@@ -94,5 +94,4 @@ public partial class MainPageViewModel
 	{
 		_cancellationTokenSource?.Cancel();
 	}
-
 }

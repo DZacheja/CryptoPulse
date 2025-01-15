@@ -27,5 +27,9 @@
 			Title="My Api Keys"
 			ContentTemplate="{DataTemplate view:KeyInputPage}"
 			Icon="key_icon" />
+		<ShellContent
+			Title="Test Page"
+			ContentTemplate="{DataTemplate view:TestPage}"
+			Icon="testpage" />
 	</TabBar>
 </Shell>

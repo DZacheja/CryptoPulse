@@ -24,5 +24,13 @@ public class MappingProfiles : Profile
 
 		//PairAvgPrice
 		CreateMap<PairAvgPriceDTo, PairAvgPrice>();
+
+		//KlineData
+		CreateMap<KlineDataDto, KlineData>()
+			.ForMember(x => x.OpenTime, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeMilliseconds(src.OpenTime).DateTime.ToLocalTime()))
+			.ForMember(x => x.OpenTime, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeMilliseconds(src.OpenTime).DateTime.ToLocalTime()))
+			.ForMember(x => x.AvgTime, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeMilliseconds((src.OpenTime + src.CloseTime) / 2).DateTime.ToLocalTime()))
+			.ForMember(x => x.AvgTimeLng, opt => opt.MapFrom(src => (src.OpenTime + src.CloseTime) / 2))
+			.ForMember(x => x.AvgPrice, opt => opt.MapFrom(src => ((src.HighPrice + src.LowPrice) / 2)));
 	}
 }
