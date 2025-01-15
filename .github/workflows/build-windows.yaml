@@ -1,0 +1,44 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Setup .NET environment
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x' # Adjust based on your target framework version
+        
+    # Install .NET MAUI
+    - name: Install MAUI workload
+      run: dotnet workload install maui
+      
+    # Install missing workloads
+    - name: Install Missing Workloads
+      run: dotnet workload restore
+
+    # Install dependencies
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # Build the project
+    - name: Build Project
+      run: dotnet build --no-restore --configuration Release
+
+    # Run unit tests
+    - name: Run Unit Tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
