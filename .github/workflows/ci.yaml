@@ -22,6 +22,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '9.0.x' # Adjust based on your target framework version
+        
+    # Install missing workloads
+    - name: Install Missing Workloads
+      run: dotnet workload restore
 
     # Install dependencies
     - name: Restore Dependencies
