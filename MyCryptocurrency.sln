@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCryptocurrency.Infrastruc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCryptocurrency.Database", "MyCryptocurrency.Database\MyCryptocurrency.Database.csproj", "{6663885A-ADB9-454C-92FA-31D55B0A25E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCryptocurrency.Tests", "MyCryptocurrency.Tests\MyCryptocurrency.Tests.csproj", "{C8A49506-DEA7-4F66-AB7F-452ECB61272D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{6663885A-ADB9-454C-92FA-31D55B0A25E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6663885A-ADB9-454C-92FA-31D55B0A25E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6663885A-ADB9-454C-92FA-31D55B0A25E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8A49506-DEA7-4F66-AB7F-452ECB61272D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8A49506-DEA7-4F66-AB7F-452ECB61272D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8A49506-DEA7-4F66-AB7F-452ECB61272D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8A49506-DEA7-4F66-AB7F-452ECB61272D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

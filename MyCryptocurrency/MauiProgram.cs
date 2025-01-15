@@ -11,6 +11,7 @@ using MyCryptocurrency.Services;
 using MyCryptocurrency.Services.Interfaces;
 using MyCryptocurrency.ViewModels;
 using MyCryptocurrency.Views;
+using Syncfusion.Maui.Core.Hosting;
 
 namespace MyCryptocurrency
 {
@@ -21,6 +22,7 @@ namespace MyCryptocurrency
 			var builder = MauiApp.CreateBuilder();
 			builder
 				.UseMauiApp<App>()
+				.ConfigureSyncfusionCore()
 				.UseMauiCommunityToolkit(
 				options =>
 				{
@@ -47,6 +49,7 @@ namespace MyCryptocurrency
 			builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 
 			// Register services and viewmodels
+			builder.Services.AddTransient<TestPageViewModel>();
 			builder.Services.AddTransient<MainPageViewModel>();
 			builder.Services.AddTransient<KeyInputViewModel>();
 			builder.Services.AddTransient<TradeDetailsViewModel>();
@@ -54,6 +57,7 @@ namespace MyCryptocurrency
 			builder.Services.AddTransient<ManagePairsViewModel>();
 
 			//Registyer Pages
+			builder.Services.AddTransient<TestPage>();
 			builder.Services.AddTransient<MainPage>();
 			builder.Services.AddTransient<KeyInputPage>();
 			builder.Services.AddTransient<TradeDetailsViewModel>();

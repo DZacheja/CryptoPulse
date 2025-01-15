@@ -27,6 +27,12 @@ public class BinanceClientService: IBinanceClientService
 		return _mapper.Map<List<AccountTrade>>(res);
 	}
 
+	public async Task<List<KlineData>> GetHistoricalDataAsync(string symbol, string interval, int limit)
+	{
+		var res = await _binanceApiClient.GetHistoricalDataAsync(symbol, interval ,limit);
+		return _mapper.Map<List<KlineData>>(res);
+	}
+
 	public async Task<PairAvgPrice> GetSymbolAvgPrice(string symbol)
 	{
 		var res = await _binanceApiClient.GetSymbolAvgPrice(symbol);

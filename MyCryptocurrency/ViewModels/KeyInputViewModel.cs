@@ -37,7 +37,7 @@ public partial class KeyInputViewModel: ObservableObject
 		try
 		{
 			await _storageService.SaveApiKeyAsync(ApiKey);
-			await _binanceApiClient.SetNewKeyApiValue(ApiKey);
+			_binanceApiClient.SetNewKeyApiValue(ApiKey);
 			ShowBannerMessage("ApiKey saved successfully!");
 		}
 		catch (Exception ex)
@@ -57,7 +57,7 @@ public partial class KeyInputViewModel: ObservableObject
 		try
 		{
 			await _storageService.SaveApiPrivateKeyAsync(PrivateKey);
-			await _binanceApiClient.SetNewPrivateKeyValue(PrivateKey);
+			_binanceApiClient.SetNewPrivateKeyValue(PrivateKey);
 			ShowBannerMessage("PrivateKey saved successfully!");
 		}
 		catch (Exception ex)

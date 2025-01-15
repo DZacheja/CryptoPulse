@@ -8,12 +8,12 @@
 		<ResourceDictionary>
 			<!--  Fonts  -->
 			<Style TargetType="Label">
-				<Setter Property="FontFamily" Value="Segoe UI" />
+				<Setter Property="FontFamily" Value="OpenSansRegular" />
 				<Setter Property="FontSize" Value="14" />
 				<!--  Optional  -->
 			</Style>
 			<Style TargetType="Span">
-				<Setter Property="FontFamily" Value="Segoe UI" />
+				<Setter Property="FontFamily" Value="OpenSansRegular" />
 				<Setter Property="FontSize" Value="14" />
 				<!--  Optional  -->
 			</Style>

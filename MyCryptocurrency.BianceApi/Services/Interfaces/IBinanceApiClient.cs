@@ -10,8 +10,9 @@ public interface IBinanceApiClient
 {
 	public Task<List<AccountTradeListDto>> GetAccountTradeLis(string symbol);
 	public Task<AccountTradeListDto> GetAccountTradeLastPairOperation(string symbol);
-	public Task SetNewKeyApiValue(string apiKey);
-	public Task SetNewPrivateKeyValue(string privateKey);
+	public void SetNewKeyApiValue(string apiKey);
+	public void SetNewPrivateKeyValue(string privateKey);
 	public Task<PairPriceTickerDto> GetSymbolCurrentPrice(string symbol, CancellationTokenSource token);
 	public Task<PairAvgPriceDTo> GetSymbolAvgPrice(string symbol);
+	public Task<List<KlineDataDto>> GetHistoricalDataAsync(string symbol, string interval, int limit);
 }

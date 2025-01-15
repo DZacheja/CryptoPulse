@@ -11,6 +11,17 @@ namespace MyCryptocurrency
 			Routing.RegisterRoute(nameof(KeyInputPage), typeof(KeyInputPage));
 			Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
 			Routing.RegisterRoute(nameof(TradeListDetailsPage), typeof(TradeListDetailsPage));
+
+			if (AppSettings.ShowPageForTest)
+			{
+				var testPage = new ShellContent
+				{
+					Title = "Test Page",
+					Icon = "testpage",
+					ContentTemplate = new DataTemplate(typeof(TestPage))
+				};
+				Items.Add(testPage);
+			}
 		}
 	}
 }
