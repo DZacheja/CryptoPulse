@@ -1,0 +1,40 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Setup .NET environment
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x' # Adjust based on your target framework version
+
+    # Install dependencies
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # Build the project
+    - name: Build Project
+      run: dotnet build --no-restore --configuration Release
+
+    # Run unit tests
+    - name: Run Unit Tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+
+    # Check for lint or formatting (optional, requires analyzer setup)
+    - name: Run Linter
+      run: dotnet format --verify-no-changes
