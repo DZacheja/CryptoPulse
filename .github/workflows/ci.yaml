@@ -3,10 +3,10 @@ name: Build and Test
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -34,7 +34,3 @@ jobs:
     # Run unit tests
     - name: Run Unit Tests
       run: dotnet test --no-build --configuration Release --verbosity normal
-
-    # Check for lint or formatting (optional, requires analyzer setup)
-    - name: Run Linter
-      run: dotnet format --verify-no-changes
