@@ -23,6 +23,10 @@ jobs:
       with:
         dotnet-version: '9.0.x' # Adjust based on your target framework version
         
+    # Install .NET MAUI
+    - name: Install MAUI workload
+      run: dotnet workload install maui
+      
     # Install missing workloads
     - name: Install Missing Workloads
       run: dotnet workload restore
