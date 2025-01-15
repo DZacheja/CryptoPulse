@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build on Windows and run Tests
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
 
     # Install dependencies
     - name: Restore Dependencies
-      run: dotnet restore
+      run: dotnet restore --runtime win-x64
 
     # Build the project
     - name: Build Project
