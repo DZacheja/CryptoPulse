@@ -26,19 +26,16 @@ jobs:
     # Install .NET MAUI
     - name: Install MAUI workload
       run: dotnet workload install maui
-      
-    # Install missing workloads
-    - name: Install Missing Workloads
-      run: dotnet workload restore
 
     # Install dependencies
     - name: Restore Dependencies
       run: dotnet restore
+      working-directory: ./MyCryptocurrency
 
     # Build the project
     - name: Build Project
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build -c Release -f:net9.0-windows10.0.19041.0
 
     # Run unit tests
     - name: Run Unit Tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test -c Release -f:net9.0
