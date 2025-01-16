@@ -13,12 +13,11 @@ using System.Threading.Tasks;
 
 namespace MyCryptocurrency.ViewModels
 {
-	[ObservableObject]
-	public partial class ManagePairsViewModel
+	public partial class ManagePairsViewModel:CommunityToolkit.Mvvm.ComponentModel.ObservableObject
 	{
 		private IDatabaseService _databaseService { get; set; }
-		[ObservableProperty] private bool _activityIndicatorIsRunning = true;
-		[ObservableProperty] CryptocurrencyPair _newCryptoPair = new CryptocurrencyPair();
+		[ObservableProperty] public partial bool ActivityIndicatorIsRunning { get; set; } = true;
+		[ObservableProperty] public partial CryptocurrencyPair NewCryptoPair { get; set; } = new CryptocurrencyPair();
 		public ObservableRangeCollection<CryptocurrencyPair> CryptoPairs { get; } = new ObservableRangeCollection<CryptocurrencyPair>();
 
 		public ManagePairsViewModel(IDatabaseService databaseService)
@@ -41,9 +40,9 @@ namespace MyCryptocurrency.ViewModels
 		[RelayCommand]
 		public async Task DeletePair(CryptocurrencyPair pair)
 		{
-			_activityIndicatorIsRunning = true;
+			ActivityIndicatorIsRunning = true;
 			await _databaseService.DeletePairAsync(pair);
-			_activityIndicatorIsRunning = false;
+			ActivityIndicatorIsRunning = false;
 			GetCryptoPairs();
 		}
 
@@ -58,10 +57,10 @@ namespace MyCryptocurrency.ViewModels
 			try
 			{
 				CryptoPairs.Clear();
-				_activityIndicatorIsRunning = true;
+				ActivityIndicatorIsRunning = true;
 				int i = await _databaseService.AddPairAsync(NewCryptoPair);
 				GetCryptoPairs();
-				_activityIndicatorIsRunning = false;
+				ActivityIndicatorIsRunning = false;
 				await SnackbarHelper.ShowSnackbarAsync($"Pomyślnie dodano parę {NewCryptoPair.CurrencyName1} / {NewCryptoPair.CurrencyName2}");
 
 			}

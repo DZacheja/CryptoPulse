@@ -8,23 +8,29 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.Converters;
 public class RemoveTrailingZerosConverter : IValueConverter
 {
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+	public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 	{
-		if (value is double doubleValue)
+		if (value != null && parameter != null)
 		{
-			return doubleValue.ToString("G", CultureInfo.InvariantCulture);
+			if (value is double doubleValue)
+			{
+				return doubleValue.ToString("G", CultureInfo.InvariantCulture);
+			}
+
+			if (value is decimal decimalValue)
+			{
+				var test = decimalValue.ToString("G", CultureInfo.InvariantCulture);
+				return decimalValue.ToString("G", CultureInfo.InvariantCulture);
+			}
+
+			return value; // Fallback if the value is not a number.
 		}
 
-		if (value is decimal decimalValue)
-		{
-			var test = decimalValue.ToString("G", CultureInfo.InvariantCulture);
-			return decimalValue.ToString("G", CultureInfo.InvariantCulture);
-		}
-
-		return value; // Fallback if the value is not a number.
+		return new object();
+		
 	}
 
-	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 	{
 		throw new NotImplementedException();
 	}

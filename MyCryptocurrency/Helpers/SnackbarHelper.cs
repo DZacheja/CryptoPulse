@@ -5,7 +5,7 @@ namespace MyCryptocurrency.Helpers
 {
 	public static class SnackbarHelper
 	{
-		public static async Task ShowSnackbarAsync(string message, string actionButtonText = "Dismiss", Action action = null, TimeSpan? duration = null)
+		public static async Task ShowSnackbarAsync(string message, string actionButtonText = "Dismiss", Action? action = null, TimeSpan? duration = null)
 		{
 			var snackbarOptions = new SnackbarOptions
 			{

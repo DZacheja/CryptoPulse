@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.Models;
 public class AccountTrade
 {
-	public string Symbol { get; set; }
+	public string? Symbol { get; set; }
 	public decimal Price { get; set; }
 	public decimal Qty { get; set; }
 	public decimal QuoteQty { get; set; }
 	public decimal Commission { get; set; }
-	public string CommissionAsset { get; set; }
+	public string? CommissionAsset { get; set; }
 	public DateTime Time { get; set; }
 	public bool IsBuyer { get; set; }
 }

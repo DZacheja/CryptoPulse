@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.BianceApi.DTOs;
 public class AccountTradeListDto
 {
-	public string Symbol { get; set; }
+	public string? Symbol { get; set; }
 	public long Id { get; set; }
 	public long OrderId { get; set; }
 	public long OrderListId { get; set; }
@@ -15,7 +15,7 @@ public class AccountTradeListDto
 	public decimal Qty { get; set; }
 	public decimal QuoteQty { get; set; }
 	public decimal Commission { get; set; }
-	public string CommissionAsset { get; set; }
+	public string? CommissionAsset { get; set; }
 	public long Time { get; set; }
 	public bool IsBuyer { get; set; }
 	public bool IsMaker { get; set; }

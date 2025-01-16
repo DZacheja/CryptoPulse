@@ -3,19 +3,18 @@
 namespace MyCryptocurrency.Converters;
 public class BoolToColorConverter : IValueConverter
 {
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+	public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 	{
-		if (value is bool isActive)
+		if (value != null && value is bool isActive)
 		{
 			return isActive ? "Green" : "Red";
 		}
 		return "Unknown";
 	}
 
-	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 	{
-		// Optionally implement ConvertBack if needed.
-		return null;
+		throw new NotImplementedException();
 	}
 }
 

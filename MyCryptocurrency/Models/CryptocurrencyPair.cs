@@ -30,16 +30,16 @@ public partial class CryptocurrencyPair : ObservableObject
 	public decimal LastPrice { get; set; }
 
 	[ObservableProperty]
-	private string _priceColor = "Black";
+	public partial string PriceColor { get; set; } = "Black";
 
 	[ObservableProperty]
-	private decimal _differenceFromCurrent;
+	public partial decimal DifferenceFromCurrent { get; set; }
 
 	[ObservableProperty]
-	private decimal _percentageFromCurrent;
+	public partial decimal PercentageFromCurrent { get; set; }
 
 	[ObservableProperty]
-	private bool _percentageIsPositiveNumber;
+	public partial bool PercentageIsPositiveNumber { get; set; }
 
 	#endregion
 

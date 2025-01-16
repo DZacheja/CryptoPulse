@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.Models;
 public class PairPriceTicker
 {
-	public string Symbol { get; set; }
+	public string? Symbol { get; set; }
 	public decimal Price { get; set; }
 }

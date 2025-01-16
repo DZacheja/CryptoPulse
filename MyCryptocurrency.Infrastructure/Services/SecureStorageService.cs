@@ -14,13 +14,12 @@ public class SecureStorageService : ISecureStorageService
 	}
 
 	// Get data securely
-	public async Task<string> GetAsync(string key)
+	public async Task<string?> GetAsync(string key)
 	{
 		return await SecureStorage.GetAsync(key);
 	}
 
-	// Remove data securely
-	public async Task RemoveAsync(string key)
+	public void Remove(string key)
 	{
 		SecureStorage.Remove(key);
 	}
@@ -30,16 +29,16 @@ public class SecureStorageService : ISecureStorageService
 		await SecureStorage.SetAsync(_apiKeyName, value);
 	}
 
-	public async Task<string> GetApiKeyAsync()
+	public async Task<string?> GetApiKeyAsync()
 	{
 		try
 		{
 			var test = await SecureStorage.GetAsync(_apiKeyName);
 			return await SecureStorage.GetAsync(_apiKeyName);
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
-			return "";
+			throw new Exception("Error occured trying to get your API key.");
 		}
 	}
 
@@ -48,15 +47,15 @@ public class SecureStorageService : ISecureStorageService
 		await SecureStorage.SetAsync(_apiPrvateKeyName, value);
 	}
 
-	public async Task<string> GetApiPrivateKeyAsync()
+	public async Task<string?> GetApiPrivateKeyAsync()
 	{
 		try
 		{
 			return await SecureStorage.GetAsync(_apiPrvateKeyName);
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
-			return "";
+			throw new Exception("Error occured trying to get your Private key.");
 		}
 	}
 }

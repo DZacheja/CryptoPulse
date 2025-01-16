@@ -6,36 +6,33 @@ using MyCryptocurrency.Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace MyCryptocurrency.ViewModels;
-[ObservableObject]
-public partial class TestPageViewModel
+public partial class TestPageViewModel: CommunityToolkit.Mvvm.ComponentModel.ObservableObject
 {
 	private readonly IBinanceClientService _binanceClientService;
 	public ObservableCollection<KlineData> KlineDataCollection = new ObservableCollection<KlineData>();
 	public ObservableCollection<KlineData> TestDataCollection = new ObservableCollection<KlineData>();
 	public TestPageViewModel(IBinanceClientService binanceClientService)
 	{
-			_binanceClientService = binanceClientService;
+		_binanceClientService = binanceClientService;
 		var tst = GenerateTestData();
 		foreach (var item in tst)
 			TestDataCollection.Add(item);
-		GetExchangeData();
+
+		Task.Run(async () => await GetExchangeData());
 	}
 
-	private void GetExchangeData()
+	private async Task GetExchangeData()
 	{
-		Task.Run(async () =>
-		{
-			var kilneData = await _binanceClientService.GetHistoricalDataAsync("BTCUSDT","1h", 168);
-			foreach(var k in kilneData)
-				KlineDataCollection.Add(k);
-		});
+		var kilneData = await _binanceClientService.GetHistoricalDataAsync("BTCUSDT","1h", 168);
+		foreach (var k in kilneData)
+		KlineDataCollection.Add(k);
 		OnPropertyChanged(nameof(KlineDataCollection));
 	}
 
 	[RelayCommand]
 	public async Task RefreshData()
 	{
-		GetExchangeData();
+		await GetExchangeData();
 	}
 
 	public List<KlineData> GenerateTestData()

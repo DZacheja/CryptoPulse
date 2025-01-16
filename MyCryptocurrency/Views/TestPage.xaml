@@ -8,40 +8,6 @@
 	Title="TestPage"
 	x:DataType="vm:TestPageViewModel">
 	<VerticalStackLayout>
-		<chart:SfCartesianChart>
-
-			<chart:SfCartesianChart.XAxes>
-				<chart:DateTimeAxis />
-			</chart:SfCartesianChart.XAxes>
-
-			<chart:SfCartesianChart.YAxes>
-				<chart:NumericalAxis />
-			</chart:SfCartesianChart.YAxes>
-
-			<chart:CandleSeries
-				Close="ClosePrice"
-				EnableSolidCandle="False"
-				High="HighPrice"
-				ItemsSource="{Binding KlineDataCollection}"
-				Low="LowPrice"
-				Open="OpenPrice"
-				XBindingPath="AvgTime" />
-
-		</chart:SfCartesianChart>
-		<chart:SfCartesianChart>
-			<chart:SfCartesianChart.XAxes>
-				<chart:DateTimeAxis />
-			</chart:SfCartesianChart.XAxes>
-
-			<chart:SfCartesianChart.YAxes>
-				<chart:NumericalAxis />
-			</chart:SfCartesianChart.YAxes>
-
-			<chart:LineSeries
-				ItemsSource="{Binding TestDataCollection}"
-				XBindingPath="AvgTime"
-				YBindingPath="AvgPrice" />
-		</chart:SfCartesianChart>
 		<Button Command="{Binding RefreshDataCommand}" Text="Push Me!" />
 	</VerticalStackLayout>
 </ContentPage>

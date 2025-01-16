@@ -7,23 +7,24 @@ using MyCryptocurrency.Views;
 
 namespace MyCryptocurrency.ViewModels;
 
-[ObservableObject]
-public partial class MainPageViewModel
+public partial class MainPageViewModel: CommunityToolkit.Mvvm.ComponentModel.ObservableObject
 {
-	[ObservableProperty] private bool _activityIndicatorIsRunning = true;
+	[ObservableProperty] public partial bool ActivityIndicatorIsRunning { get; set; } = true;
+	[ObservableProperty] public partial bool AddNewPairMode { get; set; } = false;
+
 	private readonly IBinanceClientService _bianceClientService;
 	private readonly IDatabaseService _databaseService;
 	private CancellationTokenSource _cancellationTokenSource;
 	private readonly IDispatcher _dispatcher;
 	public ObservableRangeCollection<CryptocurrencyPair> CryptoPairs { get; } = new ObservableRangeCollection<CryptocurrencyPair>();
 
-	[ObservableProperty] bool _addNewPairMode = false;
 
 	public MainPageViewModel(IBinanceClientService bianceClientService, IDatabaseService databaseService, IDispatcher dispatcher)
 	{
 		_bianceClientService = bianceClientService;
 		_databaseService = databaseService;
 		_dispatcher = dispatcher;
+		_cancellationTokenSource = new CancellationTokenSource();
 	}
 
 	public void GetCryptoPairs()
@@ -84,7 +85,7 @@ public partial class MainPageViewModel
 			}
 			catch (TaskCanceledException)
 			{ }
-			catch (Exception ex)
+			catch (Exception)
 			{ }
 		}
 		OnPropertyChanged(nameof(CryptoPairs));

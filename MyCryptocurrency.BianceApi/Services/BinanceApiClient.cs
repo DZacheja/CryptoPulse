@@ -7,11 +7,12 @@ using MyCryptocurrency.Infrastructure.Services.Interfaces;
 using System.Net.Http.Json;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net.Http;
 
 public class BinanceApiClient : IBinanceApiClient
 {
-	private string _apiKey;
-	private string _apiSecret;
+	private string _apiKey { get; set; } = string.Empty;
+	private string _apiSecret { get; set; } = string.Empty;
 	private HttpClient _httpClient;
 	private HttpClient _httpClientNoAuth;
 	private readonly long _recvWindow = 50000;
@@ -20,6 +21,7 @@ public class BinanceApiClient : IBinanceApiClient
 	public BinanceApiClient(ISecureStorageService secureStorage)
 	{
 		_secureStorage = secureStorage;
+		_httpClient = new HttpClient();
 		_httpClientNoAuth = new HttpClient
 		{
 			BaseAddress = new Uri("https://api.binance.com")
@@ -52,7 +54,8 @@ public class BinanceApiClient : IBinanceApiClient
 		}
 
 		var json = await response.Content.ReadAsStringAsync();
-		return JsonConvert.DeserializeObject<List<AccountTradeListDto>>(json);
+
+		return JsonConvert.DeserializeObject<List<AccountTradeListDto>>(json) ?? throw new Exception("Response is empty");
 	}
 
 
@@ -61,21 +64,14 @@ public class BinanceApiClient : IBinanceApiClient
 		var queryString = $"symbol={symbol}";
 		var url = $"/api/v3/ticker/price?{queryString}";
 
-		try
+		var response = await _httpClientNoAuth.GetAsync(url,token.Token);
+		if (!response.IsSuccessStatusCode)
 		{
+			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+		}
 
-			var response = await _httpClientNoAuth.GetAsync(url,token.Token);
-			if (!response.IsSuccessStatusCode)
-			{
-				throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-			}
-			var json = await response.Content.ReadAsStringAsync();
-			return JsonConvert.DeserializeObject<PairPriceTickerDto>(json);
-		}
-		catch(TaskCanceledException)
-		{
-			return null;
-		}
+		var json = await response.Content.ReadAsStringAsync();
+		return JsonConvert.DeserializeObject<PairPriceTickerDto>(json) ?? throw new Exception("Response is empty");
 	}
 
 	public async Task<PairAvgPriceDTo> GetSymbolAvgPrice(string symbol)
@@ -90,7 +86,7 @@ public class BinanceApiClient : IBinanceApiClient
 		}
 
 		var json = await response.Content.ReadAsStringAsync();
-		return JsonConvert.DeserializeObject<PairAvgPriceDTo>(json);
+		return JsonConvert.DeserializeObject<PairAvgPriceDTo>(json) ?? throw new Exception("Response is empty");
 	}
 
 	public async Task<AccountTradeListDto> GetAccountTradeLastPairOperation(string symbol)
@@ -104,8 +100,9 @@ public class BinanceApiClient : IBinanceApiClient
 		if (response.IsSuccessStatusCode)
 		{
 			var json = await response.Content.ReadAsStringAsync();
-			return JsonConvert.DeserializeObject<List<AccountTradeListDto>>(json).FirstOrDefault();
-		}else
+			return JsonConvert.DeserializeObject<List<AccountTradeListDto>>(json)?.FirstOrDefault() ?? throw new Exception("Response is empty");
+		}
+		else
 		{
 			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
 		}
@@ -120,15 +117,14 @@ public class BinanceApiClient : IBinanceApiClient
 		{
 			var json = await response.Content.ReadAsStringAsync();
 			var test = JsonConvert.DeserializeObject<List<List<object>>>(json);
-			var firstElemet = test.First();
-			foreach (var value in firstElemet)
+			var firstElemet = test!.FirstOrDefault();
+			foreach (var value in firstElemet!)
 			{
 				Console.WriteLine($"Value: {value}");
 			}
 			try
 			{
-				string textelement = firstElemet[0].ToString();
-				var test3 = JsonConvert.DeserializeObject<List<List<object>>>(json).Select(kline => new KlineDataDto
+				return JsonConvert.DeserializeObject<List<List<object>>>(json)!.Select(kline => new KlineDataDto
 				{
 					OpenTime = (long)Convert.ToDouble(kline[0], CultureInfo.InvariantCulture),
 					OpenPrice = Convert.ToDecimal(kline[1], CultureInfo.InvariantCulture),
@@ -142,7 +138,6 @@ public class BinanceApiClient : IBinanceApiClient
 					TakerBuyBaseAssetVolume = Convert.ToDecimal(kline[9], CultureInfo.InvariantCulture),
 					TakerBuyQuoteAssetVolume = Convert.ToDecimal(kline[10], CultureInfo.InvariantCulture)
 				}).ToList();
-				return test3;
 			}
 			catch (Exception ex)
 			{
@@ -181,8 +176,11 @@ public class BinanceApiClient : IBinanceApiClient
 
 	public async Task InitializeAuthHttpClientAsync()
 	{
-		_apiKey = await _secureStorage.GetApiKeyAsync();
-		_apiSecret = await _secureStorage.GetApiPrivateKeyAsync();
+		_apiKey = await _secureStorage.GetApiKeyAsync() ?? string.Empty;
+		_apiSecret = await _secureStorage.GetApiPrivateKeyAsync() ?? string.Empty;
+		if (string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_apiSecret))
+			throw new Exception("Your authentication key's not found!");
+
 		_httpClient = new HttpClient
 		{
 			BaseAddress = new Uri("https://api.binance.com")

@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace MyCryptocurrency.BianceApi.DTOs;
 public class PairPriceTickerDto
 {
-	public string Symbol { get; set; }
+	public string? Symbol { get; set; }
 	public decimal Price { get; set; }
 }

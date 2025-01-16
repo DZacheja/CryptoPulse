@@ -1,14 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyCryptocurrency.BianceApi.Services.Interfaces;
+using MyCryptocurrency.Helpers;
 using MyCryptocurrency.Infrastructure.Services.Interfaces;
 
 namespace MyCryptocurrency.ViewModels;
 public partial class KeyInputViewModel: ObservableObject
 {
 	private readonly ISecureStorageService _storageService;
-	[ObservableProperty] private string _apiKey;
-	[ObservableProperty] private string _privateKey;
+	[ObservableProperty] public partial string ApiKey {  get; set; } = string.Empty;
+	[ObservableProperty] public partial string PrivateKey { get; set; } = string.Empty;
+
 	private readonly IBinanceApiClient _binanceApiClient;
 
 
@@ -21,8 +23,8 @@ public partial class KeyInputViewModel: ObservableObject
 
 	public async void GetKeys()
 	{
-		ApiKey = await _storageService.GetApiKeyAsync();
-		PrivateKey = await _storageService.GetApiPrivateKeyAsync();
+		ApiKey = await _storageService.GetApiKeyAsync()	?? string.Empty;
+		PrivateKey = await _storageService.GetApiPrivateKeyAsync() ?? string.Empty;
 	}
 
 
@@ -31,18 +33,18 @@ public partial class KeyInputViewModel: ObservableObject
 	{
 		if (string.IsNullOrWhiteSpace(ApiKey))
 		{
-			ShowBannerMessage("API Key cannot be empty.");
+			await SnackbarHelper.ShowSnackbarAsync("API Key cannot be empty.");
 		}
 
 		try
 		{
 			await _storageService.SaveApiKeyAsync(ApiKey);
 			_binanceApiClient.SetNewKeyApiValue(ApiKey);
-			ShowBannerMessage("ApiKey saved successfully!");
+			await SnackbarHelper.ShowSnackbarAsync("ApiKey saved successfully!");
 		}
 		catch (Exception ex)
 		{
-			ShowBannerMessage($"Error saving keys: {ex.Message}");
+			await SnackbarHelper.ShowSnackbarAsync($"Error saving keys: {ex.Message}");
 		}
 	}
 
@@ -51,24 +53,19 @@ public partial class KeyInputViewModel: ObservableObject
 	{
 		if (string.IsNullOrWhiteSpace(PrivateKey))
 		{
-			ShowBannerMessage("Private Key cannot be empty.");
+			await SnackbarHelper.ShowSnackbarAsync("Private Key cannot be empty.");
 		}
 
 		try
 		{
 			await _storageService.SaveApiPrivateKeyAsync(PrivateKey);
 			_binanceApiClient.SetNewPrivateKeyValue(PrivateKey);
-			ShowBannerMessage("PrivateKey saved successfully!");
+			await SnackbarHelper.ShowSnackbarAsync("PrivateKey saved successfully!");
 		}
 		catch (Exception ex)
 		{
 
-			ShowBannerMessage($"Error saving keys: {ex.Message}");
+			await SnackbarHelper.ShowSnackbarAsync($"Error saving keys: {ex.Message}");
 		}
-	}
-
-	private async void ShowBannerMessage(string message)
-	{
-		await Application.Current.MainPage.DisplayAlert("Rezultat", message, "Ok");
 	}
 }

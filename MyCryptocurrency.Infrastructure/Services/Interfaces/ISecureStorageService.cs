@@ -8,10 +8,10 @@ namespace MyCryptocurrency.Infrastructure.Services.Interfaces;
 public interface ISecureStorageService
 {
 	Task SaveAsync(string key, string value);
-	Task<string> GetAsync(string key);
-	Task RemoveAsync(string key);
+	Task<string?> GetAsync(string key);
+	void Remove(string key);
 	Task SaveApiKeyAsync(string value);
-	Task<string> GetApiKeyAsync();
+	Task<string?> GetApiKeyAsync();
 	Task SaveApiPrivateKeyAsync(string value);
-	Task<string> GetApiPrivateKeyAsync();
+	Task<string?> GetApiPrivateKeyAsync();
 }

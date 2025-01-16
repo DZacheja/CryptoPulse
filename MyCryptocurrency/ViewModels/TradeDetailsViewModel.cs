@@ -1,40 +1,41 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using MvvmHelpers;
+using MyCryptocurrency.Helpers;
 using MyCryptocurrency.Models;
 using MyCryptocurrency.Services.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MyCryptocurrency.ViewModels;
 
-[ObservableObject]
 [QueryProperty(nameof(CurrencyPair), "SelectedPair")]
-public partial class TradeDetailsViewModel
+public partial class TradeDetailsViewModel: CommunityToolkit.Mvvm.ComponentModel.ObservableObject
 {
 	private readonly IBinanceClientService _bianceClientService;
-	[ObservableProperty] private string _pair;
-	[ObservableProperty] private string _currencyName1;
-	[ObservableProperty] private string _currencyName2;
-	[ObservableProperty] private bool _activityIndicatorIsRunning = true;
 
-	private CryptocurrencyPair _currencyPair;
+	[ObservableProperty] public partial string Pair { get; set; } = string.Empty;
+	[ObservableProperty] public partial string CurrencyName1 { get; set; } = string.Empty;
+	[ObservableProperty] public partial string CurrencyName2 { get; set; } = string.Empty;
+	[ObservableProperty] public partial bool ActivityIndicatorIsRunning { get; set; } = true;
+
+	private CryptocurrencyPair _currencyPair = new CryptocurrencyPair();
+
 	public CryptocurrencyPair CurrencyPair
 	{
 		get => _currencyPair;
 		set
 		{
-			Pair = value.Symbol;
-			CurrencyName1 = value.CurrencyName1;
-			CurrencyName2 = value.CurrencyName2;
-			ShowTransactionHistory();
+			if (value != null)
+			{
+				Pair = value.Symbol;
+				CurrencyName1 = value.CurrencyName1;
+				CurrencyName2 = value.CurrencyName2;
+				ShowTransactionHistory();
+			}
+
+			_currencyPair = value ?? throw new NullReferenceException();
 		}
 	}
+
 	public ObservableCollection<AccountTrade> BuyTransactionHistory { get; set; } = new ObservableCollection<AccountTrade>();
 	public ObservableCollection<AccountTrade> SellTransactionHistory { get; set; } = new ObservableCollection<AccountTrade>();
 	public ObservableRangeCollection<AccountTrade> TransactionHistory { get; set; } = new ObservableRangeCollection<AccountTrade>();
@@ -72,13 +73,8 @@ public partial class TradeDetailsViewModel
 		}
 		catch (Exception ex)
 		{
-			ShowBannerMessage($"Błąd podczas pobierania danych: {ex.Message}");
+			await SnackbarHelper.ShowSnackbarAsync($"Błąd podczas pobierania danych: {ex.Message}");
 		}
 		ActivityIndicatorIsRunning = false;
-	}
-
-	private async void ShowBannerMessage(string message)
-	{
-		await Application.Current.MainPage.DisplayAlert("Rezultat", message, "Ok");
 	}
 }

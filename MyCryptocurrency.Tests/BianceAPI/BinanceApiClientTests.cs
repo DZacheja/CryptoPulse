@@ -111,7 +111,7 @@ public class BinanceApiClientTests
 		var Data = await _binanceApiClient.GetAccountTradeLis("XRPUSDT");
 		var jsonData = JsonConvert.DeserializeObject<List<AccountTradeListDto>>(jsonResponse);
 		// Act & Assert
-		Assert.Equal(jsonData.Count, Data.Count);
+		Assert.Equal(jsonData!.Count, Data.Count);
 		Assert.Equal(jsonData[0].Id, Data[0].Id);
 	}
 
