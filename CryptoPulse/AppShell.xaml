@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+	x:Class="CryptoPulse.AppShell"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:local="clr-namespace:CryptoPulse"
+	xmlns:view="clr-namespace:CryptoPulse.Views"
+	Title="CryptoPulse"
+	Shell.BackgroundColor="{StaticResource BackgroundColor}"
+	Shell.FlyoutBehavior="Disabled"
+	Shell.ForegroundColor="{StaticResource SecondaryColor}"
+	Shell.TabBarBackgroundColor="{StaticResource BackgroundColor}"
+	Shell.TabBarForegroundColor="{StaticResource SecondaryColor}"
+	Shell.TabBarTitleColor="{StaticResource SecondaryColor}"
+	Shell.TabBarUnselectedColor="Gray"
+	Shell.TitleColor="{StaticResource SecondaryColor}">
+	<TabBar>
+		<ShellContent
+			Title="Home"
+			ContentTemplate="{DataTemplate view:MainPage}"
+			Icon="home_button" />
+		<ShellContent
+			Title="Manage Pairs"
+			ContentTemplate="{DataTemplate view:ManagePairsPage}"
+			Icon="manage_pairs" />
+		<ShellContent
+			Title="My Api Keys"
+			ContentTemplate="{DataTemplate view:KeyInputPage}"
+			Icon="key_icon" />
+		<ShellContent
+			Title="Test Page"
+			ContentTemplate="{DataTemplate view:TestPage}"
+			Icon="testpage" />
+	</TabBar>
+</Shell>

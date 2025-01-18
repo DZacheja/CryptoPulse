@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+      - development
   pull_request:
     branches:
       - master
+      - development
 
 jobs:
   build:
@@ -30,7 +32,7 @@ jobs:
     # Install dependencies
     - name: Restore Dependencies
       run: dotnet restore
-      working-directory: ./MyCryptocurrency
+      working-directory: ./CryptoPulse
 
     # Build the project
     - name: Build Project

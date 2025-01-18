@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+	x:Class="CryptoPulse.Views.TestPage"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+	xmlns:vm="clr-namespace:CryptoPulse.ViewModels"
+	Title="TestPage"
+	x:DataType="vm:TestPageViewModel">
+	<VerticalStackLayout>
+		<Button Command="{Binding RefreshDataCommand}" Text="Push Me!" />
+	</VerticalStackLayout>
+</ContentPage>

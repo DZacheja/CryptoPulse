@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+	x:Class="CryptoPulse.Views.KeyInputPage"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+	xmlns:vm="clr-namespace:CryptoPulse.ViewModels"
+	Title="KeyInputPage"
+	x:DataType="vm:KeyInputViewModel">
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+		</ResourceDictionary>
+	</ContentPage.Resources>
+	<Grid>
+		<VerticalStackLayout
+			Padding="30,50,30,30"
+			IsVisible="{Binding ActivityIndicatorIsRunning, Converter={StaticResource InvertedBoolConverter}}"
+			Spacing="25">
+
+			<Label
+				FontSize="20"
+				HorizontalOptions="Center"
+				Text="Enter your API Key" />
+			<Entry
+				x:Name="ApiKeyEntry"
+				Grid.Column="0"
+				IsPassword="true"
+				Placeholder="API Key"
+				Text="{Binding ApiKey, Mode=TwoWay}" />
+
+			<Label
+				FontSize="20"
+				HorizontalOptions="Center"
+				Text="Enter your Private Key" />
+			<Entry
+				x:Name="PrivateKeyEntry"
+				Grid.Column="0"
+				IsPassword="true"
+				Placeholder="Private Key"
+				Text="{Binding PrivateKey, Mode=TwoWay}" />
+
+			<Button
+				Grid.Column="1"
+				Margin="20,0,0,0"
+				Command="{Binding SaveKeysCommand}"
+				HorizontalOptions="CenterAndExpand"
+				Text="Save" />
+		</VerticalStackLayout>
+		<StackLayout
+			HorizontalOptions="Center"
+			IsVisible="{Binding ActivityIndicatorIsRunning}"
+			VerticalOptions="Center">
+			<Image
+				Aspect="AspectFill"
+				HorizontalOptions="Fill"
+				Source="blueindex.jpg"
+				VerticalOptions="Fill" />
+			<ActivityIndicator IsRunning="True" />
+		</StackLayout>
+	</Grid>
+</ContentPage>
