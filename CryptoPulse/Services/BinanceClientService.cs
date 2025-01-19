@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CryptoPulse.BianceApi.Services.Interfaces;
-using CryptoPulse.Infrastructure.Services.Interfaces;
 using CryptoPulse.Models;
 using CryptoPulse.Services.Interfaces;
 
@@ -13,6 +12,12 @@ public class BinanceClientService: IBinanceClientService
 	{
 		_mapper = mapper;
 		_binanceApiClient = bianceApiService;
+	}
+
+	public async Task<List<Balance>> GetAccountBalance()
+	{
+		var accountInfo = await _binanceApiClient.GetAccountInfo();
+		return _mapper.Map<List<Balance>>(accountInfo);
 	}
 
 	public async Task<AccountTrade> GetAccountTradeLastPairOperationAsync(string symbol)

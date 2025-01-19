@@ -39,9 +39,9 @@ public class SecureStorageService : ISecureStorageService
 			_apiKeyValue = await SecureStorage.GetAsync(_apiKeyName);
 			return _apiKeyValue;
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			throw new Exception("Error occured trying to get your API key.");
+			throw new Exception("Error occured trying to get your API key."+ ex.Message);
 		}
 	}
 

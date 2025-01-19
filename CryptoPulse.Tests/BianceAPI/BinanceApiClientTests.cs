@@ -2,12 +2,14 @@
 using CryptoPulse.BianceApi.DTOs;
 using CryptoPulse.BianceApi.Services.Interfaces;
 using CryptoPulse.Infrastructure.Exceptions;
+using CryptoPulse.Infrastructure.Services;
 using CryptoPulse.Infrastructure.Services.Interfaces;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
 namespace CryptoPulse.Tests.BianceAPI;
@@ -72,12 +74,46 @@ public class BinanceApiClientTests:BaseTest
 					await Assert.ThrowsAsync<NoAuthKeyException>(() => binanceApiClient.GetAccountTradeLastPairOperationAsync("BTCUSDT"));
 				}
 				break;
+				case nameof(_binanceApiClient.GetAccountInfo):
+				{
+					await Assert.ThrowsAsync<NoAuthKeyException>(() => binanceApiClient.GetAccountInfo());
+				}
+				break;
 				default:
 				Assert.Fail($"Not all method's with AuthKeyRequired are tested!, missing Nethod: {method.Name}");
 				break;
 			}
 		}
 	}
+
+	#region GetAccountInfo
+	[Fact]
+	public async Task GetAccountInfo_ReturnsAccountInfoDto()
+	{
+		// Arrange
+		var jsonResponse = await GetBianceApiTestFileContent("GetAccountInfo");
+
+		_mockHttpMessageHandler.Protected()
+			.Setup<Task<HttpResponseMessage>>("SendAsync",
+				ItExpr.IsAny<HttpRequestMessage>(),
+				ItExpr.IsAny<CancellationToken>())
+			.ReturnsAsync(new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.OK,
+				Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
+			});
+
+		_binanceApiClient.GetType().GetField("_httpClient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+			?.SetValue(_binanceApiClient, _mockHttpClient);
+
+		var resonse = await _binanceApiClient.GetAccountInfo();
+		var jsonData = JsonConvert.DeserializeObject<AccountInfoDto>(jsonResponse);
+
+		// Act & Assert
+		Assert.NotNull(resonse);
+		Assert.Equivalent(jsonData, resonse);
+	}
+	#endregion
 
 	#region GetAccountTradeLis
 	[Fact]
@@ -108,9 +144,7 @@ public class BinanceApiClientTests:BaseTest
 	public async Task GetAccountTradeLis_ReturnsValidTradeList()
 	{
 		// Arrange
-		var projectDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
-		var testDataPath = Path.Combine(projectDir, "BianceAPI", "OutputTestContent", "GetAccountTradeLisHttpTestResult.json");
-		var jsonResponse = await File.ReadAllTextAsync(testDataPath);
+		var jsonResponse = await GetBianceApiTestFileContent("GetAccountTradeLisHttpTestResult");
 
 		_mockHttpMessageHandler.Protected()
 			.Setup<Task<HttpResponseMessage>>("SendAsync",

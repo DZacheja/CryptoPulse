@@ -35,5 +35,13 @@ public class MappingProfiles : Profile
 			.ForMember(x => x.AvgTime, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeMilliseconds((src.OpenTime + src.CloseTime) / 2).DateTime.ToLocalTime()))
 			.ForMember(x => x.AvgTimeLng, opt => opt.MapFrom(src => (src.OpenTime + src.CloseTime) / 2))
 			.ForMember(x => x.AvgPrice, opt => opt.MapFrom(src => ((src.HighPrice + src.LowPrice) / 2)));
+
+		//AccountInfo take only the BalanceDto object
+		CreateMap<AccountInfoDto, List<Balance>>()
+				.ConvertUsing(src => src.Balances.ConvertAll(b => new Balance
+				{
+					Asset = b.Asset,
+					Free = b.Free
+				}));
 	}
 }

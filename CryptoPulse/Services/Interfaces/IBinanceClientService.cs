@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace CryptoPulse.Services.Interfaces;
 public interface IBinanceClientService
 {
+	public Task<List<Balance>> GetAccountBalance();
 	public Task<List<AccountTrade>> GetAccountTradeList(string pair);
 	public Task<PairPriceTicker> GetSymbolCurrentPriceAsync(string symbol);
 	public Task<AccountTrade> GetAccountTradeLastPairOperationAsync(string symbol);

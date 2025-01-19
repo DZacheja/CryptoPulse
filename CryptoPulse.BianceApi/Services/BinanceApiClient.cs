@@ -4,6 +4,7 @@ using CryptoPulse.BianceApi.Services.Interfaces;
 using CryptoPulse.Infrastructure.Exceptions;
 using CryptoPulse.Infrastructure.Services.Interfaces;
 using Newtonsoft.Json;
+using System.ComponentModel.Design;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -33,6 +34,19 @@ public class BinanceApiClient : IBinanceApiClient
 		await InitializeAuthHttpClientAsync();
 	}
 
+	public void TestInitializeObject()
+	{
+		_apiKey = "TzyLPYqcZx7hqc6cCJSsjr69tPpSNmOLXIVLyPFTvWL4mR4UpTopDPuq5nkzvcTr";
+		_privateKey = "VyfPsOsFLe0uHyGTLurCAqj8ACdMXNb7V0zpjyzzX5Iu8jufroqioxYVmL8IyiLZ";
+		_hasValidKeys = true;
+		_httpClient = new HttpClient
+		{
+			BaseAddress = new Uri("https://api.binance.com")
+		};
+
+		_httpClient.DefaultRequestHeaders.Add("X-MBX-APIKEY", _apiKey);
+	}
+
 	// Generate HMAC SHA256 signature
 	private string CreateSignature(string queryString)
 	{
@@ -44,7 +58,27 @@ public class BinanceApiClient : IBinanceApiClient
 		return BitConverter.ToString(hash).Replace("-", "").ToLower();
 	}
 	#region Authorization required
-	// Fetch transaction history for a given pair
+
+	[AuthKeyRequired]
+	public async Task<AccountInfoDto> GetAccountInfo()
+	{
+		var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+		var queryString = $"timestamp={timestamp}&recvWindow={_recvWindow}&omitZeroBalances=true";
+		var signature = CreateSignature(queryString);
+		var url = $"/api/v3/account?{queryString}&signature={signature}";
+
+		var response = await _httpClient.GetAsync(url);
+
+		if (response.IsSuccessStatusCode)
+		{
+			var json = await response.Content.ReadAsStringAsync();
+			return JsonConvert.DeserializeObject<AccountInfoDto>(json);
+		}
+		else
+		{
+			throw new Exception($"API call failed: {response.StatusCode}");
+		}
+	}
 	/// <summary>
 	/// Fetch transaction history for a given pair
 	/// </summary>

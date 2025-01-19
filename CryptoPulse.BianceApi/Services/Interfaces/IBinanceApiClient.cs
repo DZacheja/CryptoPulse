@@ -11,6 +11,7 @@ public interface IBinanceApiClient
 	public Task InitializeAsync();
 	public Task<List<AccountTradeListDto>> GetAccountTradeLisAsync(string symbol);
 	public Task<AccountTradeListDto> GetAccountTradeLastPairOperationAsync(string symbol);
+	public Task<AccountInfoDto> GetAccountInfo();
 	public Task<PairPriceTickerDto> GetSymbolCurrentPriceAsync(string symbol);
 	public Task<PairAvgPriceDTo> GetSymbolAvgPriceAsync(string symbol);
 	public Task<List<KlineDataDto>> GetHistoricalDataAsync(string symbol, string interval, int limit);

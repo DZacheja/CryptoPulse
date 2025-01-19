@@ -34,6 +34,26 @@ public class BinanceClientServiceTests: BaseTest
 		_binanceClientService = new BinanceClientService(_mapper, _mockBinanceApiClient.Object);
 	}
 
+	#region GetAccountBalance
+	[Fact]
+	public async Task GetAccountBalance_ReturnValidBalanceList()
+	{
+		// Arrange
+		var jsonResponse = await GetBianceApiTestFileContent("GetAccountInfo");
+
+		var jsonData = JsonConvert.DeserializeObject<AccountInfoDto>(jsonResponse);
+		_mockBinanceApiClient.Setup(x => x.GetAccountInfo()).ReturnsAsync(jsonData!);
+		Assert.NotNull(jsonData);
+
+		// Act
+		List<Balance> result = await _binanceClientService.GetAccountBalance();
+
+		Assert.NotNull(result);
+		Assert.Equal(jsonData.Balances.Count, result.Count);
+		Assert.Equal(jsonData.Balances.First().Asset, result.First().Asset);
+	}
+	#endregion
+
 	#region GetAccountTradeList
 	[Fact]
 	public async Task GetAccountTradeList_ReturnValidTradeList()
