@@ -1,1 +1,17 @@
-[{"symbol":"BTCUSDT","id":4397236319,"orderId":35079354236,"orderListId":-1,"price":"94337.46000000","qty":"0.00132000","quoteQty":"124.52544720","commission":"0.00000132","commissionAsset":"BTC","time":1736614973077,"isBuyer":true,"isMaker":false,"isBestMatch":true}]
+[
+	{
+		"symbol": "BTCUSDT",
+		"id": 4397236319,
+		"orderId": 35079354236,
+		"orderListId": -1,
+		"price": "94337.46000000",
+		"qty": "0.00132000",
+		"quoteQty": "124.52544720",
+		"commission": "0.00000132",
+		"commissionAsset": "BTC",
+		"time": 1736614973077,
+		"isBuyer": true,
+		"isMaker": false,
+		"isBestMatch": true
+	}
+]

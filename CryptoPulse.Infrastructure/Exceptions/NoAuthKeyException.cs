@@ -5,25 +5,25 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoPulse.Infrastructure.Exceptions;
-public class NoAuthKeyExeption : Exception
+public class NoAuthKeyException : Exception
 {
 	// Optionally, add custom properties
 	public int ErrorCode { get; set; } = 0;
 	public string ErrorDetails { get; set; } = string.Empty; 
 
 	// Default constructor
-	public NoAuthKeyExeption()
+	public NoAuthKeyException()
 	{
 	}
 
 	// Constructor with a message
-	public NoAuthKeyExeption(string message)
+	public NoAuthKeyException(string message)
 		: base(message)
 	{
 	}
 
 	// Constructor with a message and an inner exception
-	public NoAuthKeyExeption(string message, Exception innerException)
+	public NoAuthKeyException(string message, Exception innerException)
 		: base(message, innerException)
 	{
 	}

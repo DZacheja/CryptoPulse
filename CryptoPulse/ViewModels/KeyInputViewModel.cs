@@ -32,7 +32,7 @@ public partial class KeyInputViewModel: ObservableObject
 		{
 			ApiKey = await _storageService.GetApiKeyAsync() ?? string.Empty;
 			PrivateKey = await _storageService.GetApiPrivateKeyAsync() ?? string.Empty;
-			validKeys =  await _binanceApiClient.GetUserKeysValidation(ApiKey, PrivateKey);
+			validKeys =  await _binanceApiClient.ChceckUserKeysValidationAsync(ApiKey, PrivateKey, true);
 			
 		}).Wait();
 
@@ -55,7 +55,7 @@ public partial class KeyInputViewModel: ObservableObject
 			return;
 		}
 
-		bool validKeys = await _binanceApiClient.GetUserKeysValidation(ApiKey, PrivateKey);
+		bool validKeys = await _binanceApiClient.ChceckUserKeysValidationAsync(ApiKey, PrivateKey);
 		if (!validKeys)
 		{
 			await Application.Current!.Windows[0].Page!.DisplayAlert("Alert", "The provided api key or private key is not correct!", "OK");

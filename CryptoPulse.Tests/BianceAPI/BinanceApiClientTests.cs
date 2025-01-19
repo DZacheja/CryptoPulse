@@ -1,29 +1,33 @@
-﻿using Moq;
-using Moq.Protected;
+﻿using CryptoPulse.BianceApi.Attributes;
 using CryptoPulse.BianceApi.DTOs;
-using CryptoPulse.Infrastructure.Services;
+using CryptoPulse.BianceApi.Services.Interfaces;
+using CryptoPulse.Infrastructure.Exceptions;
 using CryptoPulse.Infrastructure.Services.Interfaces;
+using Moq;
+using Moq.Protected;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CryptoPulse.Tests.BianceAPI;
-public class BinanceApiClientTests
+public class BinanceApiClientTests:BaseTest
 {
 	private readonly Mock<ISecureStorageService> _mockSecureStorage;
 	private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
 	private readonly HttpClient _mockHttpClient;
 	private readonly BinanceApiClient _binanceApiClient;
+	private readonly Mock<IBinanceApiClient> _mockBinanceApiClient;
 
+	#region Constructor
 	public BinanceApiClientTests()
 	{
 		_mockSecureStorage = new Mock<ISecureStorageService>();
 		_mockSecureStorage.Setup(x => x.GetApiKeyAsync()).ReturnsAsync("testApiKey");
 		_mockSecureStorage.Setup(x => x.GetApiPrivateKeyAsync()).ReturnsAsync("testApiSecret");
+		_mockSecureStorage.Setup(x => x.GetApiKeyCashed()).Returns("testApiKey");
+		_mockSecureStorage.Setup(x => x.GetApiPrivateKeyCashed()).Returns("testApiSecret");
+
 		_mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 		_mockHttpClient = new HttpClient(_mockHttpMessageHandler.Object)
 		{
@@ -32,38 +36,50 @@ public class BinanceApiClientTests
 
 		// Initialize the BinanceApiClient with the mocked dependencies
 		_binanceApiClient = new BinanceApiClient(_mockSecureStorage.Object);
+		_binanceApiClient.GetType().GetField("_hasValidKeys", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(_binanceApiClient, true);
+
+		_mockBinanceApiClient = new Mock<IBinanceApiClient>();
 	}
+	#endregion
 
 	[Fact]
-	public async Task GetSymbolCurrentPrice_ReturnsValidPrice()
+	public async Task GetDataWithRequiedAuthorization_ThrownNoAuthKeyExeption()
 	{
-		// Arrange
-		var symbol = "BTCUSDT";
-		var mockResponse = new PairPriceTickerDto { Symbol = symbol, Price = 50000.00m };
-		var jsonResponse = JsonConvert.SerializeObject(mockResponse);
+		//Arrange
+		var mockSecureStorage = new Mock<ISecureStorageService>();
+		mockSecureStorage.Setup(x => x.GetApiKeyCashed()).Returns(string.Empty);
+		mockSecureStorage.Setup(x => x.GetApiPrivateKeyCashed()).Returns(string.Empty);
 
-		_mockHttpMessageHandler.Protected()
-			.Setup<Task<HttpResponseMessage>>("SendAsync",
-				ItExpr.IsAny<HttpRequestMessage>(),
-				ItExpr.IsAny<CancellationToken>())
-			.ReturnsAsync(new HttpResponseMessage
+		BinanceApiClient binanceApiClient = new BinanceApiClient(mockSecureStorage.Object);
+		binanceApiClient.GetType().GetField("_hasValidKeys", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(_binanceApiClient, false);
+
+		var methods = typeof(BinanceApiClient)
+			.GetMethods()
+			.Where(m => m.GetCustomAttributes(typeof(AuthKeyRequiredAttribute), false).Any());
+
+		// Act & Assert
+		foreach (var method in methods)
+		{
+			switch (method.Name)
 			{
-				StatusCode = HttpStatusCode.OK,
-				Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-			});
-
-		_binanceApiClient.GetType().GetField("_httpClientNoAuth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-			?.SetValue(_binanceApiClient, _mockHttpClient);
-
-		// Act
-		var result = await _binanceApiClient.GetSymbolCurrentPrice(symbol, new CancellationTokenSource());
-
-		// Assert
-		Assert.NotNull(result);
-		Assert.Equal(symbol, result.Symbol);
-		Assert.Equal(50000.00m, result.Price);
+				case nameof(_binanceApiClient.GetAccountTradeLisAsync):
+				{
+					await Assert.ThrowsAsync<NoAuthKeyException>(() => binanceApiClient.GetAccountTradeLisAsync("BTCUSDT"));
+				}
+				break;
+				case nameof(_binanceApiClient.GetAccountTradeLastPairOperationAsync):
+				{
+					await Assert.ThrowsAsync<NoAuthKeyException>(() => binanceApiClient.GetAccountTradeLastPairOperationAsync("BTCUSDT"));
+				}
+				break;
+				default:
+				Assert.Fail($"Not all method's with AuthKeyRequired are tested!, missing Nethod: {method.Name}");
+				break;
+			}
+		}
 	}
 
+	#region GetAccountTradeLis
 	[Fact]
 	public async Task GetAccountTradeLis_ThrowsException_OnApiFailure()
 	{
@@ -85,7 +101,7 @@ public class BinanceApiClientTests
 			?.SetValue(_binanceApiClient, _mockHttpClient);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<Exception>(() => _binanceApiClient.GetAccountTradeLis("BTCUSDT"));
+		await Assert.ThrowsAsync<Exception>(() => _binanceApiClient.GetAccountTradeLisAsync("BTCUSDT"));
 	}
 
 	[Fact]
@@ -108,25 +124,51 @@ public class BinanceApiClientTests
 
 		_binanceApiClient.GetType().GetField("_httpClient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
 			?.SetValue(_binanceApiClient, _mockHttpClient);
-		var Data = await _binanceApiClient.GetAccountTradeLis("XRPUSDT");
+		var Data = await _binanceApiClient.GetAccountTradeLisAsync("XRPUSDT");
 		var jsonData = JsonConvert.DeserializeObject<List<AccountTradeListDto>>(jsonResponse);
 		// Act & Assert
 		Assert.Equal(jsonData!.Count, Data.Count);
 		Assert.Equal(jsonData[0].Id, Data[0].Id);
 	}
+	#endregion
 
+	#region GetAccountTradeLastPairOperation
 	[Fact]
-	public async Task GetHistoricalDataAsync_ReturnsValidData()
+	public async Task GetAccountTradeLastPairOperation_ReturnsLastTradeInfo()
+	{
+		// Arrange
+		var jsonResponse = await GetBianceApiTestFileContent("GetAccountTradeLastPairOperationTestResult.json");
+
+		_mockHttpMessageHandler.Protected()
+			.Setup<Task<HttpResponseMessage>>("SendAsync",
+				ItExpr.IsAny<HttpRequestMessage>(),
+				ItExpr.IsAny<CancellationToken>())
+			.ReturnsAsync(new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.OK,
+				Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
+			});
+
+		_binanceApiClient.GetType().GetField("_httpClient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+			?.SetValue(_binanceApiClient, _mockHttpClient);
+
+		var Data = await _binanceApiClient.GetAccountTradeLastPairOperationAsync("XRPUSDT");
+
+		var jsonData = JsonConvert.DeserializeObject<List<AccountTradeListDto>>(jsonResponse);
+		AccountTradeListDto element = jsonData!.First();
+		// Act & Assert
+		Assert.Equivalent(element, Data);
+	}
+	#endregion
+
+	#region GetSymbolCurrentPrice
+	[Fact]
+	public async Task GetSymbolCurrentPrice_ReturnsValidPrice()
 	{
 		// Arrange
 		var symbol = "BTCUSDT";
-		var interval = "1h";
-		var limit = 10;
-		var mockResponse = new List<List<object>>
-		{
-			new List<object> { 1627484400000, "40000.00", "41000.00", "39000.00", "40500.00", "1000", 1627488000000, "100000", 10, "500", "50000" }
-		};
-		var jsonResponse = JsonConvert.SerializeObject(mockResponse);
+		var jsonResponse = await GetBianceApiTestFileContent("GetSymbolCurrentPrice");
+		var mockResponse = JsonConvert.DeserializeObject<PairPriceTickerDto>(jsonResponse);
 
 		_mockHttpMessageHandler.Protected()
 			.Setup<Task<HttpResponseMessage>>("SendAsync",
@@ -142,12 +184,98 @@ public class BinanceApiClientTests
 			?.SetValue(_binanceApiClient, _mockHttpClient);
 
 		// Act
-		var result = await _binanceApiClient.GetHistoricalDataAsync(symbol, interval, limit);
+		var result = await _binanceApiClient.GetSymbolCurrentPriceAsync(symbol);
 
 		// Assert
 		Assert.NotNull(result);
-		Assert.Single(result);
-		Assert.Equal(40500.00M, result[0].ClosePrice);
+		Assert.Equivalent(mockResponse, result);
 	}
+
+	#endregion
+
+	#region GetSymbolAvgPrice
+	[Fact]
+	public async Task GetSymbolAvgPrice_ReturnValidPrice()
+	{
+		// Arrange
+		var symbol = "BTCUSDT";
+		var jsonResponse = await GetBianceApiTestFileContent("GetSymbolAvgPrice");
+		var mockResponse = JsonConvert.DeserializeObject<PairAvgPriceDTo>(jsonResponse);
+
+		_mockHttpMessageHandler.Protected()
+			.Setup<Task<HttpResponseMessage>>("SendAsync",
+				ItExpr.IsAny<HttpRequestMessage>(),
+				ItExpr.IsAny<CancellationToken>())
+			.ReturnsAsync(new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.OK,
+				Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
+			});
+
+		_binanceApiClient.GetType().GetField("_httpClientNoAuth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+			?.SetValue(_binanceApiClient, _mockHttpClient);
+
+		// Act
+		var result = await _binanceApiClient.GetSymbolAvgPriceAsync(symbol);
+
+		// Assert
+		Assert.NotNull(result);
+		Assert.Equivalent(mockResponse, result);
+	}
+	#endregion
+
+	#region GetHistoricalDataAsync
+	[Fact]
+	public async Task GetHistoricalDataAsync_ReturnsValidData()
+	{
+		// Arrange
+		var symbol = "BTCUSDT";
+		var jsonResponse = await GetBianceApiTestFileContent("GetHistoricalDataAsync");
+
+		var mockResponse = JsonConvert.DeserializeObject<List<List<object>>>(jsonResponse)!.Select(kline => new KlineDataDto
+		{
+			OpenTime = (long)Convert.ToDouble(kline[0], CultureInfo.InvariantCulture),
+			OpenPrice = Convert.ToDecimal(kline[1], CultureInfo.InvariantCulture),
+			HighPrice = Convert.ToDecimal(kline[2], CultureInfo.InvariantCulture),
+			LowPrice = Convert.ToDecimal(kline[3], CultureInfo.InvariantCulture),
+			ClosePrice = Convert.ToDecimal(kline[4], CultureInfo.InvariantCulture),
+			Volume = Convert.ToDouble(kline[5], CultureInfo.InvariantCulture),
+			CloseTime = (long)Convert.ToDouble(kline[6], CultureInfo.InvariantCulture),
+			QuoteAssetVolume = Convert.ToDouble(kline[7], CultureInfo.InvariantCulture),
+			NumberOfTrades = (long)Convert.ToDouble(kline[8], CultureInfo.InvariantCulture),
+			TakerBuyBaseAssetVolume = Convert.ToDecimal(kline[9], CultureInfo.InvariantCulture),
+			TakerBuyQuoteAssetVolume = Convert.ToDecimal(kline[10], CultureInfo.InvariantCulture)
+		}).ToList();
+
+		_mockHttpMessageHandler.Protected()
+			.Setup<Task<HttpResponseMessage>>("SendAsync",
+				ItExpr.IsAny<HttpRequestMessage>(),
+				ItExpr.IsAny<CancellationToken>())
+			.ReturnsAsync(new HttpResponseMessage
+			{
+				StatusCode = HttpStatusCode.OK,
+				Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
+			});
+
+		_binanceApiClient.GetType().GetField("_httpClientNoAuth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+			?.SetValue(_binanceApiClient, _mockHttpClient);
+
+		// Act
+		var result = await _binanceApiClient.GetHistoricalDataAsync("BTCUSDT","1h", 168);
+
+		// Assert
+		Assert.NotNull(result);
+		Assert.Equivalent(mockResponse, result);
+	}
+	#endregion
+
+	#region InitializeAsync
+	[Fact]
+	public async Task InitializeAsync_GetKeysValidationInfo_ReturnTrue()
+	{
+		await _binanceApiClient.InitializeAsync();
+		Assert.True(_binanceApiClient.GetKeysValidationInfo());
+	}
+	#endregion
 }
 

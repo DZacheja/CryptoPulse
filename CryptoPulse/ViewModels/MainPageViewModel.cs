@@ -79,7 +79,7 @@ public partial class MainPageViewModel : CommunityToolkit.Mvvm.ComponentModel.Ob
 			{
 				if (!_cancellationTokenSource.IsCancellationRequested && !ActivityIndicatorIsRunning)
 				{
-					var currPrice = await _bianceClientService.GetSymbolCurrentPrice(pair.Symbol, cancellationToken);
+					var currPrice = await _bianceClientService.GetSymbolCurrentPriceAsync(pair.Symbol);
 					pair.LastPrice = pair.CurrentExchangeRate;
 					pair.CurrentExchangeRate = currPrice.Price;
 				}
