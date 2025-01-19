@@ -15,15 +15,15 @@ public class BinanceClientService: IBinanceClientService
 		_binanceApiClient = bianceApiService;
 	}
 
-	public async Task<AccountTrade> GetAccountTradeLastPairOperation(string symbol)
+	public async Task<AccountTrade> GetAccountTradeLastPairOperationAsync(string symbol)
 	{
-		var res = await _binanceApiClient.GetAccountTradeLastPairOperation(symbol);
+		var res = await _binanceApiClient.GetAccountTradeLastPairOperationAsync(symbol);
 		return _mapper.Map<AccountTrade>(res);
 	}
 
 	public async Task<List<AccountTrade>> GetAccountTradeList(string pair)
 	{
-		var res = await _binanceApiClient.GetAccountTradeLis(pair);
+		var res = await _binanceApiClient.GetAccountTradeLisAsync(pair);
 		return _mapper.Map<List<AccountTrade>>(res);
 	}
 
@@ -33,15 +33,15 @@ public class BinanceClientService: IBinanceClientService
 		return _mapper.Map<List<KlineData>>(res);
 	}
 
-	public async Task<PairAvgPrice> GetSymbolAvgPrice(string symbol)
+	public async Task<PairAvgPrice> GetSymbolAvgPriceAsync(string symbol)
 	{
-		var res = await _binanceApiClient.GetSymbolAvgPrice(symbol);
+		var res = await _binanceApiClient.GetSymbolAvgPriceAsync(symbol);
 		return _mapper.Map<PairAvgPrice>(res);
 	}
 
-	public async Task<PairPriceTicker> GetSymbolCurrentPrice(string symbol, CancellationTokenSource token)
+	public async Task<PairPriceTicker> GetSymbolCurrentPriceAsync(string symbol)
 	{
-		var res = await _binanceApiClient.GetSymbolCurrentPrice(symbol, token);
+		var res = await _binanceApiClient.GetSymbolCurrentPriceAsync(symbol);
 		return _mapper.Map<PairPriceTicker>(res);
 	}
 }

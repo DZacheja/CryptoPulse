@@ -33,7 +33,7 @@ public class DatabaseService : IDatabaseService
 		var mappedPairs = _mapper.Map<List<CryptocurrencyPair>>(pairs);
 		foreach (var pair in mappedPairs)
 		{
-			pair.LastOperation = await _bianceClient.GetAccountTradeLastPairOperation(pair.Symbol);
+			pair.LastOperation = await _bianceClient.GetAccountTradeLastPairOperationAsync(pair.Symbol);
 			if(pair.LastOperation != null)
 			{
 				pair.LastOperationPair = pair.LastOperation.IsBuyer ? $"{pair.CurrencyName2} ► {pair.CurrencyName1}" : $"{pair.CurrencyName1} ► {pair.CurrencyName2}";
