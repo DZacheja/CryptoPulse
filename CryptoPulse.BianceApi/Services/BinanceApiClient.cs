@@ -1,4 +1,5 @@
-﻿using CryptoPulse.BianceApi.DTOs;
+﻿using CryptoPulse.BianceApi.Attributes;
+using CryptoPulse.BianceApi.DTOs;
 using CryptoPulse.BianceApi.Services.Interfaces;
 using CryptoPulse.Infrastructure.Exceptions;
 using CryptoPulse.Infrastructure.Services.Interfaces;
@@ -10,7 +11,7 @@ using System.Text;
 public class BinanceApiClient : IBinanceApiClient
 {
 	private string _apiKey { get; set; } = string.Empty;
-	private string _apiSecret { get; set; } = string.Empty;
+	private string _privateKey { get; set; } = string.Empty;
 	private HttpClient _httpClient;
 	private HttpClient _httpClientNoAuth;
 	private readonly long _recvWindow = 50000;
@@ -38,13 +39,20 @@ public class BinanceApiClient : IBinanceApiClient
 		if (!_hasValidKeys)
 			GetCashedKeys();
 
-		using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_apiSecret));
+		using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_privateKey));
 		var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(queryString));
 		return BitConverter.ToString(hash).Replace("-", "").ToLower();
 	}
-
+	#region Authorization required
 	// Fetch transaction history for a given pair
-	public async Task<List<AccountTradeListDto>> GetAccountTradeLis(string symbol)
+	/// <summary>
+	/// Fetch transaction history for a given pair
+	/// </summary>
+	/// <param name="symbol"></param>
+	/// <returns></returns>
+	/// <exception cref="Exception"></exception>
+	[AuthKeyRequired]
+	public async Task<List<AccountTradeListDto>> GetAccountTradeLisAsync(string symbol)
 	{
 		var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		var starttime = DateTimeOffset.UtcNow.AddDays(-30).ToUnixTimeMilliseconds();
@@ -63,38 +71,8 @@ public class BinanceApiClient : IBinanceApiClient
 		return JsonConvert.DeserializeObject<List<AccountTradeListDto>>(json) ?? throw new Exception("Response is empty");
 	}
 
-
-	public async Task<PairPriceTickerDto> GetSymbolCurrentPrice(string symbol, CancellationTokenSource token)
-	{
-		var queryString = $"symbol={symbol}";
-		var url = $"/api/v3/ticker/price?{queryString}";
-
-		var response = await _httpClientNoAuth.GetAsync(url,token.Token);
-		if (!response.IsSuccessStatusCode)
-		{
-			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-		}
-
-		var json = await response.Content.ReadAsStringAsync();
-		return JsonConvert.DeserializeObject<PairPriceTickerDto>(json) ?? throw new Exception("Response is empty");
-	}
-
-	public async Task<PairAvgPriceDTo> GetSymbolAvgPrice(string symbol)
-	{
-		var queryString = $"symbol={symbol}";
-		var url = $"/api/v3/avgPrice?{queryString}";
-
-		var response = await _httpClientNoAuth.GetAsync(url);
-		if (!response.IsSuccessStatusCode)
-		{
-			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-		}
-
-		var json = await response.Content.ReadAsStringAsync();
-		return JsonConvert.DeserializeObject<PairAvgPriceDTo>(json) ?? throw new Exception("Response is empty");
-	}
-
-	public async Task<AccountTradeListDto> GetAccountTradeLastPairOperation(string symbol)
+	[AuthKeyRequired]
+	public async Task<AccountTradeListDto> GetAccountTradeLastPairOperationAsync(string symbol)
 	{
 		var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 		var queryString = $"symbol={symbol}&limit=1&timestamp={timestamp}&recvWindow={_recvWindow}";
@@ -112,6 +90,38 @@ public class BinanceApiClient : IBinanceApiClient
 			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
 		}
 	}
+	#endregion
+
+	#region No authorization methods
+	public async Task<PairPriceTickerDto> GetSymbolCurrentPriceAsync(string symbol)
+	{
+		var queryString = $"symbol={symbol}";
+		var url = $"/api/v3/ticker/price?{queryString}";
+
+		var response = await _httpClientNoAuth.GetAsync(url);
+		if (!response.IsSuccessStatusCode)
+		{
+			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+		}
+
+		var json = await response.Content.ReadAsStringAsync();
+		return JsonConvert.DeserializeObject<PairPriceTickerDto>(json) ?? throw new Exception("Response is empty");
+	}
+
+	public async Task<PairAvgPriceDTo> GetSymbolAvgPriceAsync(string symbol)
+	{
+		var queryString = $"symbol={symbol}";
+		var url = $"/api/v3/avgPrice?{queryString}";
+
+		var response = await _httpClientNoAuth.GetAsync(url);
+		if (!response.IsSuccessStatusCode)
+		{
+			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+		}
+		var json = await response.Content.ReadAsStringAsync();
+		return JsonConvert.DeserializeObject<PairAvgPriceDTo>(json) ?? throw new Exception("Response is empty");
+	}
+
 
 	public async Task<List<KlineDataDto>> GetHistoricalDataAsync(string symbol, string interval, int limit)
 	{
@@ -155,14 +165,15 @@ public class BinanceApiClient : IBinanceApiClient
 			throw new Exception($"API call failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
 		}
 	}
+	#endregion
 
 	#region Keys operation
 	private void GetCashedKeys()
 	{
 		_apiKey = _secureStorage.GetApiKeyCashed() ?? string.Empty;
-		_apiSecret = _secureStorage.GetApiPrivateKeyCashed() ?? string.Empty;
+		_privateKey = _secureStorage.GetApiPrivateKeyCashed() ?? string.Empty;
 
-		if (!(string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_apiSecret)))
+		if (!(string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_privateKey)))
 		{
 			_httpClient = new HttpClient
 			{
@@ -174,25 +185,9 @@ public class BinanceApiClient : IBinanceApiClient
 		else
 		{
 			_hasValidKeys = false;
-			throw new NoAuthKeyExeption();
+			throw new NoAuthKeyException();
 		}
 	}
-
-	public void SetNewKeyApiValue(string apiKey)
-	{
-		_apiKey = apiKey;
-		_httpClient = new HttpClient
-		{
-			BaseAddress = new Uri("https://api.binance.com")
-		};
-		_httpClient.DefaultRequestHeaders.Add("X-MBX-APIKEY", _apiKey);
-	}
-
-	public void SetNewPrivateKeyValue(string privateKey)
-	{
-		_apiSecret = privateKey;
-	}
-
 
 	public async Task InitializeAuthHttpClientAsync()
 	{
@@ -200,14 +195,14 @@ public class BinanceApiClient : IBinanceApiClient
 		{
 
 			_apiKey = await _secureStorage.GetApiKeyAsync() ?? string.Empty;
-			_apiSecret = await _secureStorage.GetApiPrivateKeyAsync() ?? string.Empty;
+			_privateKey = await _secureStorage.GetApiPrivateKeyAsync() ?? string.Empty;
 
 			_httpClient = new HttpClient
 			{
 				BaseAddress = new Uri("https://api.binance.com")
 			};
 
-			if (!(string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_apiSecret)))
+			if (!(string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_privateKey)))
 			{
 				_httpClient.DefaultRequestHeaders.Add("X-MBX-APIKEY", _apiKey);
 				_hasValidKeys = true;
@@ -219,8 +214,9 @@ public class BinanceApiClient : IBinanceApiClient
 		}
 	}
 
-	public async Task<bool> GetUserKeysValidation(string apiKey, string privateKey)
+	public async Task<bool> ChceckUserKeysValidationAsync(string apiKey, string privateKey, bool applayNewKeys = false)
 	{
+
 		HttpClient tempClient = new HttpClient
 		{
 			BaseAddress = new Uri("https://api.binance.com")
@@ -236,6 +232,12 @@ public class BinanceApiClient : IBinanceApiClient
 
 		var url = $"/api/v3/account?{queryString}&signature={signature}";
 		var response = await tempClient.GetAsync(url);
+		var responseSuccess = response.IsSuccessStatusCode;
+
+		if (applayNewKeys && responseSuccess)
+		{
+			SetNewKeyApiValueToHttpClient(apiKey, privateKey);
+		}
 
 		return response.IsSuccessStatusCode;
 	}
@@ -243,6 +245,18 @@ public class BinanceApiClient : IBinanceApiClient
 	public bool GetKeysValidationInfo()
 	{
 		return _hasValidKeys;
+	}
+
+	public void SetNewKeyApiValueToHttpClient(string apiKey, string privateKey)
+	{
+		_apiKey = apiKey;
+		_privateKey = privateKey;
+		_httpClient = new HttpClient
+		{
+			BaseAddress = new Uri("https://api.binance.com")
+		};
+
+		_httpClient.DefaultRequestHeaders.Add("X-MBX-APIKEY", _apiKey);
 	}
 	#endregion
 }
